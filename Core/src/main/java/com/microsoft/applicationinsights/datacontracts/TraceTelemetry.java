@@ -26,7 +26,7 @@ public class TraceTelemetry extends BaseTelemetry<MessageData> {
 
     @Override
     protected void additionalSanitize() {
-        this.data.setMessage(LocalStringsUtils.sanitize(this.data.getMessage(), 32768));
+        this.data.setMessage(LocalStringsUtils.sanitize(this.data.getMessage(), LocalStringsUtils.MaxMessageLength));
     }
 
     @Override

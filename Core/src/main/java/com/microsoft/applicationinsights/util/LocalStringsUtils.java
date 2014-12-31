@@ -6,6 +6,10 @@ import java.util.*;
 
 public class LocalStringsUtils
 {
+    public static final int MaxNameLength = 1024;
+    public static final int MaxUrlLength = 1024;
+    public static final int MaxMessageLength = 32768;
+
     /**
      * Determine whether a string is null or empty.
      * @param value The string value
