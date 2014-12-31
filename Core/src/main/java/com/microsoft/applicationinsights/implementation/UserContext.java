@@ -44,7 +44,7 @@ public class UserContext implements JsonSerializable {
         return MapUtil.getDateValueOrNull(tags, ContextTagKeys.getKeys().getUserAccountAcquisitionDate());
     }
 
-    public void setgetAcquisitionDate(Date version) {
+    public void setAcquisitionDate(Date version) {
         MapUtil.setDateValueOrRemove(tags, ContextTagKeys.getKeys().getUserAccountAcquisitionDate(), version);
     }
 
