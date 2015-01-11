@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+jar {
+    version = '1.0'
+    baseName = 'instrumentationagent'
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    deployerJars
+}
+
+compileJava {
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+    options.bootClasspath = "${System.getenv('JAVA_JRE_6')}\\lib\\rt.jar"
+}
+
+dependencies {
+    deployerJars "org.apache.maven.wagon:wagon-ftp:2.8"
+} 
+
+version = "1.0.0-SNAPSHOT"
+group = "com.microsoft.applicationinsights.runtime"
+
+task checkUploadProperties << {
+    if (!this.hasProperty("javamavenuserpassword")) {
+        throw new GroovyRuntimeException("Property javamavenuserpassword should be defined for uploadArchives task")
+    }
+}
+
+uploadArchives {
+    if (this.hasProperty("javamavenuserpassword")) {
+        repositories {
+            mavenDeployer {
+                configuration = configurations.deployerJars
+
+                repository(url: "ftp://waws-prod-dm1-003.ftp.azurewebsites.windows.net/site/wwwroot/repository/") {
+                    authentication(userName: "dotm2\\\$dotm2", password: javamavenuserpassword)
+                }
+            }
+        }
+    }
+}
+
+tasks.uploadArchives.dependsOn(checkUploadProperties)
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'org.javassist', name: 'javassist', version: '3.+'
+}
