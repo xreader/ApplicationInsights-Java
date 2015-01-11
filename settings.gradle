@@ -1,4 +1,5 @@
 rootProject.name = 'AppInsights Java'
 
 include 'Core'
+include 'RTIA'
 
