@@ -14,12 +14,13 @@ public class DurationTransformer implements ClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className,
                             Class classBeingRedefined, ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) throws IllegalClassFormatException {
+
         byte[] byteCode = classfileBuffer;
 
         // since this transformer will be called when all the classes are
         // loaded by the classloader, we are restricting the instrumentation
         // using if block only for the Lion class
-        if (className.equals("com/javapapers/java/instrumentation/Lion")) {
+        if (className.equals("com/microsoft/applicationinsights/runtime/InstrumentMe")) {
             System.out.println("Instrumenting......");
             try {
                 ClassPool classPool = ClassPool.getDefault();

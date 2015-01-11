@@ -4,6 +4,9 @@ apply plugin: 'maven'
 jar {
     version = '1.0'
     baseName = 'instrumentationagent'
+    manifest {
+        attributes('Premain-Class': 'com.microsoft.applicationinsights.runtime.InstrumentationAgent')
+    }
 }
 
 repositories {
