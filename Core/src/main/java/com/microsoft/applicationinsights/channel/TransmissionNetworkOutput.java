@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Strings;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -26,7 +25,7 @@ import com.google.common.base.Preconditions;
  *
  * Created by gupele on 12/18/2014.
  */
-public final class TransmissionNetworkOutput implements TransmissionOutput {
+final class TransmissionNetworkOutput implements TransmissionOutput {
     private final static String CONTENT_TYPE_HEADER = "Content-Type";
     private final static String CONTENT_ENCODING_HEADER = "Content-Encoding";
     private final static int DEFAULT_REQUEST_TIMEOUT_IN_MILLIS = 60000;
@@ -44,11 +43,16 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
     // Use one instance for optimization
     private final CloseableHttpClient httpClient;
 
-    public TransmissionNetworkOutput() {
-        this(DEFAULT_SERVER_URI);
+    public static TransmissionNetworkOutput create() {
+        return create(DEFAULT_SERVER_URI);
     }
 
-    public TransmissionNetworkOutput(String serverUri) {
+    public static TransmissionNetworkOutput create(String endpoint) {
+        String realEndpoint = Strings.isNullOrEmpty(endpoint) ? DEFAULT_SERVER_URI : endpoint;
+        return new TransmissionNetworkOutput(realEndpoint);
+    }
+
+    private TransmissionNetworkOutput(String serverUri) {
         Preconditions.checkNotNull(serverUri, "serverUri should be a valid non-null value");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(serverUri), "serverUri should be a valid non-null value");
 
@@ -77,8 +81,9 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
     @Override
     public boolean send(Transmission transmission) {
         CloseableHttpResponse response = null;
+        HttpPost request = null;
         try {
-            HttpPost request = createTransmissionPostRequest(transmission);
+            request = createTransmissionPostRequest(transmission);
 
             response = httpClient.execute(request);
 
@@ -89,6 +94,10 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
                     logError(respEntity);
                 }
             }
+        } catch (org.apache.http.conn.ConnectionPoolTimeoutException e) {
+            // log?
+            // We let the Dispatcher decide
+            transmissionDispatcher.dispatch(transmission);
         } catch (IOException ioe) {
             ioe.printStackTrace(System.err);
             try {
@@ -100,6 +109,10 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
                 // log?
                 // return transmission to the dispatcher
                 ioeIn.printStackTrace(System.err);
+            }
+        } finally {
+            if (request != null) {
+                request.releaseConnection();
             }
         }
 
@@ -114,7 +127,9 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
             BufferedReader reader = new BufferedReader(streamReader);
             String responseLine = reader.readLine();
             respEntity.getContent().close();
+
             // TODO: check more and log
+            System.out.println(responseLine);
         } catch (IOException e) {
             e.printStackTrace();
         }

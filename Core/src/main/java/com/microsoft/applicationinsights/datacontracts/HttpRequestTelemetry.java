@@ -14,7 +14,7 @@ import com.google.common.base.Strings;
 /**
  * Telemetry used to track events.
  */
-public class HttpRequestTelemetry extends BaseTelemetry<RequestData> {
+public final class HttpRequestTelemetry extends BaseTelemetry<RequestData> {
     private final RequestData data;
 
     /**
@@ -93,7 +93,7 @@ public class HttpRequestTelemetry extends BaseTelemetry<RequestData> {
     }
 
     public void setDuration(long milliSeconds) {
-        this.data.setDuration(LocalStringsUtils.formatDuration(milliSeconds));
+        this.data.setDuration(milliSeconds);
     }
 
     public URL getUrl() throws MalformedURLException {

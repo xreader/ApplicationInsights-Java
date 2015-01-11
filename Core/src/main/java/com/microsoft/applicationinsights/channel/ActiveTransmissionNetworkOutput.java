@@ -1,6 +1,7 @@
 package com.microsoft.applicationinsights.channel;
 
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -9,8 +10,8 @@ import com.microsoft.applicationinsights.util.ThreadPoolUtils;
 /**
  * Created by gupele on 12/18/2014.
  */
-public final class ActiveTransmissionNetworkOutput implements TransmissionOutput {
-    private final static int DEFAULT_BUFFER_SIZE = 1024;
+final class ActiveTransmissionNetworkOutput implements TransmissionOutput {
+    private final static int DEFAULT_MAX_MESSAGES_IN_BUFFER = 128;
     private final static int DEFAULT_MIN_NUMBER_OF_THREADS = 1;
     private final static int DEFAULT_MAX_NUMBER_OF_THREADS = 7;
     private final static long DEFAULT_REMOVE_IDLE_THREAD_TIMEOUT_IN_SECONDS = 60L;
@@ -22,10 +23,10 @@ public final class ActiveTransmissionNetworkOutput implements TransmissionOutput
     private final TransmissionOutput actualOutput;
 
     public ActiveTransmissionNetworkOutput(TransmissionOutput actualOutput) {
-        this(actualOutput, DEFAULT_BUFFER_SIZE);
+        this(actualOutput, DEFAULT_MAX_MESSAGES_IN_BUFFER);
     }
 
-    public ActiveTransmissionNetworkOutput(TransmissionOutput actualOutput, int bufferSize) {
+    public ActiveTransmissionNetworkOutput(TransmissionOutput actualOutput, int maxMessagesInBuffer) {
         this.actualOutput = actualOutput;
 
         maxThreads = DEFAULT_MAX_NUMBER_OF_THREADS;
@@ -33,29 +34,35 @@ public final class ActiveTransmissionNetworkOutput implements TransmissionOutput
                 DEFAULT_MIN_NUMBER_OF_THREADS,
                 maxThreads,
                 DEFAULT_REMOVE_IDLE_THREAD_TIMEOUT_IN_SECONDS,
-                bufferSize);
+                maxMessagesInBuffer);
+        outputThreads.setThreadFactory(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                return thread;
+            }
+        });
     }
 
     @Override
     public boolean send(final Transmission transmission) {
-//        if (transmission != null) {
-//            return false;
-//        }
         try {
             outputThreads.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         actualOutput.send(transmission);
-                    } catch (Exception e) {
-                        // Do nothing
-                        // The expectation is that the 'actual output' will consume all exceptions
+                    } catch (Throwable throwable) {
+                        // Avoid un-expected exit of thread
                     }
                 }
             });
             return true;
+
         } catch (RejectedExecutionException e) {
         } catch (Exception e) {
+            // TODO: log
         }
 
         return false;

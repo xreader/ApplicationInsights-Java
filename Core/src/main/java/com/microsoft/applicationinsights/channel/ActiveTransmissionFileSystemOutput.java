@@ -1,6 +1,7 @@
 package com.microsoft.applicationinsights.channel;
 
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -13,7 +14,7 @@ import com.microsoft.applicationinsights.util.ThreadPoolUtils;
  *
  * Created by gupele on 12/22/2014.
  */
-public class ActiveTransmissionFileSystemOutput implements TransmissionOutput {
+final class ActiveTransmissionFileSystemOutput implements TransmissionOutput {
     private final ThreadPoolExecutor threadPool;
 
     private final TransmissionOutput actualOutput;
@@ -21,28 +22,39 @@ public class ActiveTransmissionFileSystemOutput implements TransmissionOutput {
     public ActiveTransmissionFileSystemOutput(TransmissionOutput actualOutput) {
         this.actualOutput = actualOutput;
         threadPool = ThreadPoolUtils.newLimitedThreadPool(1, 3, 20L, 1024);
+        threadPool.setThreadFactory(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                return thread;
+            }
+        });
     }
 
     @Override
     public boolean send(final Transmission transmission) {
+        // TODO: check the possibility of refactoring the 'send' and possible log on errors
         try {
+
             threadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         actualOutput.send(transmission);
-                    } catch (Exception e) {
-                        // Do nothing
-                        // The expectation is that the 'actual output' will consume all exceptions
+                    } catch (Throwable throwable) {
+                        // Avoid un-expected exit of thread
                     }
                 }
             });
             return true;
+
         } catch (RejectedExecutionException e) {
             // Note that currently if we cannot put the job to work we drop
             // the transmission, we need to add internal logging for that case
             // TODO: log
         } catch (Exception e) {
+            // TODO: log
         }
 
         return false;
