@@ -45,7 +45,6 @@ public class PageViewTelemetry extends BaseTelemetry<PageViewData> {
     }
 
     public void setDuration(int duration) {
-        this.data.setDuration(Integer.toString(duration));
     }
 
     public int getDuration() {
