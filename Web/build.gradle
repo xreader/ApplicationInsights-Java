@@ -1,0 +1,35 @@
+version = "1.0.0-SNAPSHOT"
+group = "com.microsoft.applicationinsights.logging"
+
+task checkUploadProperties << {
+    if (!this.hasProperty("javamavenuserpassword")) {
+        throw new GroovyRuntimeException("Property javamavenuserpassword should be defined for uploadArchives task")
+    }
+}
+
+uploadArchives {
+    if (this.hasProperty("javamavenuserpassword")) {
+        repositories {
+            mavenDeployer {
+                configuration = configurations.deployerJars
+
+                repository(url: "ftp://waws-prod-dm1-003.ftp.azurewebsites.windows.net/site/wwwroot/repository/") {
+                    authentication(userName: "dotm2\\\$dotm2", password: javamavenuserpassword)
+                }
+            }
+        }
+    }
+}
+
+tasks.uploadArchives.dependsOn(checkUploadProperties)
+
+// endregion Publishing tasks
+
+dependencies {
+    compile project(':Core')
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.+'
+    testCompile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.+'
+    testCompile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.+'
+    testCompile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.+'
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.1'
+}
