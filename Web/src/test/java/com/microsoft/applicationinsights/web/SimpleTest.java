@@ -6,12 +6,29 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.servlet.DispatcherType;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.EnumSet;
 
 /**
  * Created by sergkanz on 1/12/2015.
  */
 public class SimpleTest {
+
+
+    // HTTP GET request
+    private void sendGetRequest(String url) throws Exception {
+        HttpURLConnection con = (HttpURLConnection) (new URL(url)).openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.4; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko");
+        int responseCode = con.getResponseCode();
+
+        System.out.println("Sent GET request to: " + url);
+        System.out.println("Response Code: " + responseCode);
+    }
+
 
     @Test
     public void runEmbeddedJetty() throws Exception {
@@ -25,9 +42,9 @@ public class SimpleTest {
 
         try {
             server.start();
-            server.join();
+            sendGetRequest("http://localhost:1234");
 
-            //Do something
+            //We need to validate here that http filter generated the right event
         }
         finally {
             server.stop();
