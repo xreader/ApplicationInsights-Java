@@ -6,8 +6,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.servlet.DispatcherType;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.EnumSet;
@@ -16,7 +14,6 @@ import java.util.EnumSet;
  * Created by sergkanz on 1/12/2015.
  */
 public class SimpleTest {
-
 
     // HTTP GET request
     private void sendGetRequest(String url) throws Exception {
