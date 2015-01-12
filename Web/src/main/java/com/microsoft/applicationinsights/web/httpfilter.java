@@ -1,5 +1,9 @@
 package com.microsoft.applicationinsights.web;
 
+import com.microsoft.applicationinsights.DefaultTelemetryClient;
+import com.microsoft.applicationinsights.TelemetryClient;
+import org.apache.commons.lang3.time.StopWatch;
+
 import javax.servlet.*;
 import java.io.IOException;
 import java.util.Date;
@@ -9,6 +13,11 @@ public class httpfilter implements Filter {
     public void doFilter(ServletRequest req, ServletResponse res,
                          FilterChain chain) throws IOException, ServletException {
 
+//        StopWatch sw = new StopWatch();
+//        sw.start();
+
+        TelemetryClient client = new DefaultTelemetryClient();
+
         ServletRequest request = req;
 
         //Get the IP address of client machine.
@@ -17,6 +26,10 @@ public class httpfilter implements Filter {
         //Log the IP address and current timestamp.
         System.out.println("IP "+ipAddress + ", Time "
                 + new Date().toString());
+
+        System.out.println("trackHttpRequest started");
+        client.trackHttpRequest("Some request", new Date(), 4, "200", true);
+        System.out.println("trackHttpRequest Completed");
 
         chain.doFilter(req, res);
     }

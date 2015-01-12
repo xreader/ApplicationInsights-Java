@@ -53,7 +53,7 @@ tasks.uploadArchives.dependsOn(checkUploadProperties)
 // endregion Publishing tasks
 
 dependencies {
-    compile project(':Core')
+    compile project(':core')
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.1'
     compile group: 'log4j', name: 'log4j', version: '1.2.17'

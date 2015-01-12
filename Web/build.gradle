@@ -1,5 +1,5 @@
 version = "1.0.0-SNAPSHOT"
-group = "com.microsoft.applicationinsights.logging"
+group = "com.microsoft.applicationinsights"
 
 task checkUploadProperties << {
     if (!this.hasProperty("javamavenuserpassword")) {
@@ -26,7 +26,7 @@ tasks.uploadArchives.dependsOn(checkUploadProperties)
 // endregion Publishing tasks
 
 dependencies {
-    compile project(':Core')
+    compile project(':core')
     compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.+'
     testCompile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.+'
     testCompile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.+'

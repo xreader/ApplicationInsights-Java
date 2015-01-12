@@ -6,7 +6,7 @@ jar {
 }
 
 dependencies {
-    compile project(':Core')
+    compile project(':core')
     compile project(':Logging')
     compile project(':Web')
 }
