@@ -4,13 +4,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.microsoft.applicationinsights.channel.Telemetry;
+import com.microsoft.applicationinsights.telemetry.Telemetry;
 import com.microsoft.applicationinsights.channel.TelemetryChannel;
-import com.microsoft.applicationinsights.datacontracts.*;
 import com.microsoft.applicationinsights.extensibility.ContextInitializer;
-import com.microsoft.applicationinsights.extensibility.TelemetryConfiguration;
 import com.microsoft.applicationinsights.extensibility.TelemetryInitializer;
-import com.microsoft.applicationinsights.util.MapUtil;
+import com.microsoft.applicationinsights.telemetry.*;
+import com.microsoft.applicationinsights.internal.util.MapUtil;
 
 import com.google.common.base.Strings;
 
@@ -29,7 +28,7 @@ public final class DefaultTelemetryClient implements TelemetryClient {
      */
     public DefaultTelemetryClient(TelemetryConfiguration configuration) {
         if (configuration == null)
-            configuration = TelemetryConfiguration.INSTANCE.getActive();
+            configuration = TelemetryConfiguration.getActive();
 
         synchronized (TELEMETRY_STOP_HOOK_LOCK) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -47,7 +46,7 @@ public final class DefaultTelemetryClient implements TelemetryClient {
      * Initializes a new instance of the TelemetryClient class, configured from the active configuration.
      */
     public DefaultTelemetryClient() {
-        this(TelemetryConfiguration.INSTANCE.getActive());
+        this(TelemetryConfiguration.getActive());
     }
 
     /**
