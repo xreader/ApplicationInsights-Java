@@ -5,6 +5,7 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import org.apache.commons.lang3.time.StopWatch;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 
@@ -28,10 +29,11 @@ public class httpfilter implements Filter {
                 + new Date().toString());
 
         System.out.println("trackHttpRequest started");
-        client.trackHttpRequest("Some request", new Date(), 4, "200", true);
-        System.out.println("trackHttpRequest Completed");
 
         chain.doFilter(req, res);
+
+        client.trackHttpRequest("Some request", new Date(), 4, String.valueOf(((HttpServletResponse)res).getStatus()), true);
+        System.out.println("trackHttpRequest Completed");
     }
     public void init(FilterConfig config) throws ServletException {
 
