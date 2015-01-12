@@ -31,7 +31,7 @@ public class SimpleRequestMonitoringTest {
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
             context.setContextPath("/");
             context.addServlet(Callback200Servlet.class, "/");
-            context.addFilter(httpfilter.class, "/*", EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));
+            context.addFilter(RequestTrackingFilter.class, "/*", EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));
             server.setHandler(context);
             server.start();
 
