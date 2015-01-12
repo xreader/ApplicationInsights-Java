@@ -8,6 +8,7 @@ jar {
 dependencies {
     compile project(':Core')
     compile project(':Logging')
+    compile project(':Web')
 }
 
 // region Shared sub-projects configuration
