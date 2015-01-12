@@ -11,6 +11,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 import static com.microsoft.applicationinsights.web.utils.HttpHelper.sendGetRequestAndWait;
+import static org.junit.Assert.assertTrue;
+
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 import java.util.List;
@@ -42,6 +44,9 @@ public class SimpleRequestMonitoringTest {
             HttpRequestTelemetry requestTelemetry = (HttpRequestTelemetry)items.get(0);
 
             assertEquals("200", requestTelemetry.getResponseCode());
+            assertEquals("GET /", requestTelemetry.getName());
+            assertEquals("GET", requestTelemetry.getHttpMethod());
+            assertEquals("http://localhost:1234/", requestTelemetry.getUrl().toString());
         }
         finally {
             server.stop();
