@@ -27,3 +27,17 @@ mainClassName = "com.microsoft.applicationinsights.core.volume.ThroughputTest"
 dependencies {
     compile project(':core')
 }
+
+def distributionType = getDistributionType()
+
+distTar {
+    onlyIf { distributionType == "tar" }
+}
+
+distZip {
+    onlyIf { distributionType == "zip" }
+}
+
+def getDistributionType() {
+    System.properties["distributionType"] ?: "zip"
+}
