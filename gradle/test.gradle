@@ -102,7 +102,7 @@ task deployTestWebApps {
         // DOS style while on the remote machine we need it to be linux style
         def webAppName = "bookstore-spring"
         def webAppRelativePath = convertDosToUnixPath(getWebAppPath(webAppName))
-        def webAppFullPath = remoteDirectory + webAppRelativePath
+        def webAppFullPath = "$remoteDirectory/$webAppRelativePath"
         logger.info("Web app full path: $webAppFullPath")
 
         def appServer = "TOMCAT"
