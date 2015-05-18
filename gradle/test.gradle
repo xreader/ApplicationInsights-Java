@@ -88,7 +88,7 @@ task remoteTest {
 
             runLocalCommand("Create local results directory: $rootProjectBuildDir", "if not exist \"$rootProjectBuildDir\" mkdir \"$rootProjectBuildDir\"")
             runRemoteCommand("Compress test results", "cd $remoteDirectory/build && jar cf $testResultsArchiveName $remoteTestResultsDirName $remoteTestReportDirName")
-            runRemoteCopy("Copying test results back", "$userName@$machineName:$remoteTestResultsArchiveLocation","\"$rootProjectBuildDir\"")
+            runRemoteCopy("Copying test results back", "$userName@$machineName:$remoteTestResultsArchiveLocation", rootProjectBuildDir)
             runLocalCommand("Unzip test results archive", "cd \"$rootProjectBuildDir\" && jar xf $testResultsArchiveName")
         }
     }
@@ -126,7 +126,7 @@ def runRemoteCopy(description, from, into) {
     logger.info("[runRemoteCopy] $description")
     exec {
         executable "pscp.exe"
-        args "-r", "-pw", pass, from, into
+        args "-r", "-pw", pass, "\"$from\"", "\"$into\""
     }
 }
 
