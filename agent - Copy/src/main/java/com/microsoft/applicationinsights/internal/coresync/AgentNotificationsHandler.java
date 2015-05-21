@@ -19,17 +19,39 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+package com.microsoft.applicationinsights.internal.coresync;
 
-include 'agent'
-include 'core'
-include 'logging:log4j1_2'
-include 'logging:log4j2'
-include 'logging:logback'
-include 'web'
-include 'samples'
-include 'test:performance'
-include 'test:webapps:bookstore-spring'
+/**
+ * The Agent will inject code in the user's code that will be activated on predefined methods.
+ * Those methods will be directed to the Agent that will need to work with that information by
+ * delegating the calls to 'clients', those clients will need to implement the following interface.
+ *
+ * Created by gupele on 5/6/2015.
+ */
+public interface AgentNotificationsHandler {
+    String getName();
 
-if (System.env.'COLLECTD_HOME') {
-    include 'collectd'
+    void onSQLMethodEnter(String name, Object[] arrayOfValues);
+
+    void onHTTPMethodEnter(String name, Object[] arrayOfValues);
+
+    void onDefaultMethodEnter(String name, Object[] arrayOfValues);
+
+    void onMethodFinish(String name, Throwable throwable);
+
+    void onMethodFinish(String name);
+
+    void onMethodFinish(String name, int result);
+
+    void onMethodFinish(String name, long result);
+
+    void onMethodFinish(String name, double result);
+
+    void onMethodFinish(String name, float result);
+
+    void onMethodFinish(String name, Object result);
+
+    void onMethodFinish(Object exception, String name);
+
+    void onNewThread(String key);
 }

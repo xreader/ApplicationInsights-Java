@@ -19,17 +19,44 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+package com.microsoft.applicationinsights.internal.agent;
 
-include 'agent'
-include 'core'
-include 'logging:log4j1_2'
-include 'logging:log4j2'
-include 'logging:logback'
-include 'web'
-include 'samples'
-include 'test:performance'
-include 'test:webapps:bookstore-spring'
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 
-if (System.env.'COLLECTD_HOME') {
-    include 'collectd'
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Created by gupele on 5/11/2015.
+ */
+final class SuperVerifier extends ClassVisitor {
+    private final Set<String> interfaceNames;
+    private final HashSet<String> found = new HashSet<String>();
+
+    public SuperVerifier(Set<String> interfaceNames, ClassWriter cv) {
+        super(Opcodes.ASM5, cv);
+        this.interfaceNames = interfaceNames;
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+
+        for (String i : interfaces) {
+            if (interfaceNames.contains(i)) {
+                found.add(i);
+            }
+        }
+
+        if (found.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        cv.visit(version, access, name, signature, superName, interfaces);
+    }
+
+    public Set<String> getFound() {
+        return found;
+    }
 }

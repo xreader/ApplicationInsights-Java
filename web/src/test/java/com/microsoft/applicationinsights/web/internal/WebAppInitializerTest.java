@@ -19,17 +19,26 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+package com.microsoft.applicationinsights.web.internal;
 
-include 'agent'
-include 'core'
-include 'logging:log4j1_2'
-include 'logging:log4j2'
-include 'logging:logback'
-include 'web'
-include 'samples'
-include 'test:performance'
-include 'test:webapps:bookstore-spring'
+import org.junit.Test;
+import org.mockito.Mockito;
 
-if (System.env.'COLLECTD_HOME') {
-    include 'collectd'
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+
+import static org.junit.Assert.*;
+
+public final class WebAppInitializerTest {
+
+    @Test
+    public void test() {
+        ServletContext mockContext = Mockito.mock(ServletContext.class);;
+        ClassLoader mockClassLoader = Mockito.mock(ClassLoader.class);
+
+        ServletContextEvent event = new ServletContextEvent(mockContext);
+
+        WebAppInitializer initializer = new WebAppInitializer();
+        initializer.contextInitialized(event);
+    }
 }

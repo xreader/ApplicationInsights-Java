@@ -19,17 +19,24 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+package com.microsoft.applicationinsights.internal.agent;
 
-include 'agent'
-include 'core'
-include 'logging:log4j1_2'
-include 'logging:log4j2'
-include 'logging:logback'
-include 'web'
-include 'samples'
-include 'test:performance'
-include 'test:webapps:bookstore-spring'
+import com.microsoft.applicationinsights.internal.agent.config.AgentConfiguration;
+import com.microsoft.applicationinsights.internal.coresync.InstrumentedClassType;
 
-if (System.env.'COLLECTD_HOME') {
-    include 'collectd'
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+
+/**
+ * Created by gupele on 5/11/2015.
+ */
+interface ClassNamesProvider {
+    Map<String, ClassInstrumentationData> getClassesAndMethods();
+
+    Map<String, ClassInstrumentationData> getInterfaces();
+
+    void setConfiguration(AgentConfiguration agentConfiguration);
+
+    HashSet<String> getForbiddenClasses();
 }
