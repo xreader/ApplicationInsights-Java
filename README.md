@@ -12,8 +12,14 @@ Prerequisites
 
 Getting started
 ---------------
-1.  Set JAVA_HOME environment variable to point to point to the JDK installation directory
-2.  To build run ./gradlew build on Linux systems or gradlew.bat build on Windows systems.
+1.  Set `JAVA_HOME` environment variable to point to point to the JDK installation directory
+2.  To build run `./gradlew build` on Linux systems or `gradlew.bat build` on Windows systems.
+
+Using IntelliJ IDEA IDE
+-----------------------
+1.  Got to __File->New->Project from Existing Sources...__ 
+2.  Pick `build.gradle` from the root of the repo
+3.  In the __Import Project from Gradle__ dialog click OK to accept the defaults
 
 Using Eclipse IDE
 -----------------
