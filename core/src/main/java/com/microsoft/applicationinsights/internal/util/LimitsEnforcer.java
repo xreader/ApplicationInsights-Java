@@ -1,7 +1,6 @@
 package com.microsoft.applicationinsights.internal.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.microsoft.applicationinsights.internal.logger.InternalLogger;
 
 /**
