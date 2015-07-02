@@ -50,6 +50,19 @@ task generateVersionProperties(type: PropsFileGen) {
 
 processResources.dependsOn generateVersionProperties
 
+//def ttt = System.env.'windir1' ?: "unknown"
+//println ttt
+
+def sourceOriginFileDir = "$project.buildDir/src/generated/main/resources"
+task generateSourceOriginProperties(type: PropsFileGen) {
+    targetFile = new File(sdkVersionFileDir, "source-origin.properties")
+    property "git.commit", System.env.'GIT_COMMIT' ?: "unknown"
+    property "git.branch", System.env.'GIT_BRANCH' ?: "unknown"
+    property "git.url", System.env.'GIT_URL' ?: "unknown"
+}
+
+//processResources.dependsOn generateVersionProperties
+
 sourceSets {
     main {
         resources {
