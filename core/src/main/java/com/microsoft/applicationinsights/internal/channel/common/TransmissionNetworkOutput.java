@@ -265,14 +265,6 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
         ByteArrayEntity bae = new ByteArrayEntity(transmission.getContent());
         request.setEntity(bae);
 
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS)
-                .setSocketTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS)
-                .setConnectTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS)
-                .setSocketTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS).build();
-
-        request.setConfig(requestConfig);
-
         return request;
     }
 
