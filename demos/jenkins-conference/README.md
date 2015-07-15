@@ -56,6 +56,10 @@ See [Monitor availability and responsiveness of any web site](https://azure.micr
 
 See [Using Diagnostic Search in Application Insights](https://azure.microsoft.com/en-us/documentation/articles/app-insights-diagnostic-search/).
 
+## Track the impact of your deployments with Application Insights
+
+See [Track the impact of your deployments with Application Insights](./java-deployment-markers-demo-script.md).
+
 ## Questions? Feedback?
 
 See [Troubleshooting and Q and A for Application Insights for Java](https://azure.microsoft.com/en-us/documentation/articles/app-insights-java-troubleshoot/) or contact us [here](mailto://java4ai@microsoft.com)
