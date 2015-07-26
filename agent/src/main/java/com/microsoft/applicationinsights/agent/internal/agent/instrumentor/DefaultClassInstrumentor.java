@@ -19,24 +19,24 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.microsoft.applicationinsights.agent.internal.agent;
+package com.microsoft.applicationinsights.agent.internal.agent.instrumentor;
 
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import com.microsoft.applicationinsights.agent.internal.agent.ClassInstrumentationData;
+import com.microsoft.applicationinsights.agent.internal.agent.MethodInstrumentationDecision;
+import org.objectweb.asm.*;
 
 /**
  * The class is responsible for identifying public methods on non-interface classes.
- * When a method is found the class will call the {@link DefaultMethodInstrumentor}
+ * When a method is found the class will call the {@link com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultMethodInstrumentor}
  *
  * Created by gupele on 5/11/2015.
  */
-final class DefaultClassInstrumentor extends ClassVisitor {
-    private String owner;
+public class DefaultClassInstrumentor extends ClassVisitor {
     private boolean isInterface;
     private final ClassInstrumentationData instrumentationData;
-    private final MethodInstrumentorsFactory factory;
+
+    protected final MethodInstrumentorsFactory factory;
+    protected String owner;
 
     public DefaultClassInstrumentor(MethodInstrumentorsFactory factory, ClassInstrumentationData instrumentationData, ClassWriter cv) {
         super(Opcodes.ASM5, cv);
@@ -44,6 +44,14 @@ final class DefaultClassInstrumentor extends ClassVisitor {
         owner = instrumentationData.getClassName();
         this.instrumentationData = instrumentationData;
         this.factory = factory;
+    }
+
+    public DefaultClassInstrumentor(ClassInstrumentationData instrumentationData, ClassWriter cw) {
+        super(Opcodes.ASM5, cw);
+
+        owner = instrumentationData.getClassName();
+        this.instrumentationData = instrumentationData;
+        this.factory = null;
     }
 
     @Override
@@ -54,6 +62,9 @@ final class DefaultClassInstrumentor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+        if (owner.indexOf("AsyncCall") != -1) {
+            System.out.println("asyncLL" + name + " " + desc);
+        }
         MethodVisitor originalMV = super.visitMethod(access, name, desc, signature, exceptions);
 
         if (isInterface || originalMV == null || ByteCodeUtils.isConstructor(name) || ByteCodeUtils.isPrivate(access)) {
@@ -65,6 +76,13 @@ final class DefaultClassInstrumentor extends ClassVisitor {
             return originalMV;
         }
 
-        return factory.getMethodVisitor(decision, access, desc, owner, name, originalMV);
+        return getMethodVisitor(decision, access, name, desc, originalMV);
+    }
+
+    protected MethodVisitor getMethodVisitor(MethodInstrumentationDecision decision, int access, String name, String desc, MethodVisitor originalMV) {
+        if (factory == null) {
+//            instrumentationData.get
+        }
+        return factory.getMethodVisitor(decision, access, desc, owner, name, originalMV, null);
     }
 }

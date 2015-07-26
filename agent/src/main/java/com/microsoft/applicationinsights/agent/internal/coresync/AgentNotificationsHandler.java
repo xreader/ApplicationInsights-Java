@@ -46,11 +46,11 @@ public interface AgentNotificationsHandler {
     void onThrowable(String classAndMethodNames, Throwable throwable);
 
     /**
-     * Called when an instrumented class and method that deals with sending URLs.
+     * Called when an HTTP call is made of the supported frameworks.
      * @param classAndMethodNames The name of the class and method separated by '.'
-     * @param url The name of the url that is being sent
+     * @param url The Uri that is used
      */
-    void onMethodEnterURL(String classAndMethodNames, URL url);
+    void onMethodSendingURLEnter(String classAndMethodNames, String url);
 
     /**
      * Called when an java.sql.Statement concrete class is called

@@ -26,6 +26,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultClassInstrumentor;
 import com.microsoft.applicationinsights.agent.internal.config.AgentConfiguration;
 import com.microsoft.applicationinsights.agent.internal.config.AgentConfigurationBuilderFactory;
 import com.microsoft.applicationinsights.agent.internal.logger.InternalAgentLogger;
@@ -40,8 +41,7 @@ import org.objectweb.asm.ClassWriter;
  */
 public final class CodeInjector implements ClassFileTransformer {
 
-    private final ClassDataProvider classNamesProvider = new DefaultClassDataProvider();
-    private DefaultMethodInstrumentorsFactory factory;
+    private final DefaultClassDataProvider classNamesProvider = new DefaultClassDataProvider();
 
     /**
      * The constructor will set all the data needed for the transformation and then
@@ -53,7 +53,6 @@ public final class CodeInjector implements ClassFileTransformer {
     public CodeInjector(Instrumentation inst, String agentJarLocation) {
         try {
             loadConfiguration(agentJarLocation);
-            factory = new DefaultMethodInstrumentorsFactory(classNamesProvider);
 
             inst.addTransformer(this);
 
@@ -81,20 +80,25 @@ public final class CodeInjector implements ClassFileTransformer {
             ProtectionDomain protectionDomain,
             byte[] originalBuffer) throws IllegalClassFormatException {
 
-        ClassInstrumentationData classInstrumentationData = classNamesProvider.getAndRemove(className);
-        if (classInstrumentationData != null) {
-            try {
-                return getTransformedBytes(originalBuffer, classInstrumentationData);
-            } catch (Throwable throwable) {
-                System.err.println(String.format("Failed to instrument '%s', exception: '%s': ", classInstrumentationData, throwable.getMessage()));
-            }
-        }
+        return classNamesProvider.getAndRemove(className, originalBuffer);
 
-        return originalBuffer;
+//        ClassInstrumentationData classInstrumentationData = classNamesProvider.getAndRemove(className);
+//        if (classInstrumentationData != null) {
+//            if (className.indexOf("okhttp") != -1) {
+//                System.out.println("afdfdff" + className);
+//            }
+//            try {
+//                return getTransformedBytes(originalBuffer, classInstrumentationData);
+//            } catch (Throwable throwable) {
+//                System.err.println(String.format("Failed to instrument '%s', exception: '%s': ", classInstrumentationData, throwable.getMessage()));
+//            }
+//        }
+//
+//        return originalBuffer;
     }
 
     /**
-     * The method will create the {@link DefaultClassInstrumentor}
+     * The method will create the {@link com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultClassInstrumentor}
      * which is responsible for injecting the code to do so the method will pass the class the needed data that will enable its work
      * @param originalBuffer The original buffer of the class
      * @param instrumentationData The instrumentation data for that class
@@ -103,7 +107,7 @@ public final class CodeInjector implements ClassFileTransformer {
     private byte[] getTransformedBytes(byte[] originalBuffer, ClassInstrumentationData instrumentationData) {
         ClassReader cr = new ClassReader(originalBuffer);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        DefaultClassInstrumentor mcw = new DefaultClassInstrumentor(factory, instrumentationData, cw);
+        DefaultClassInstrumentor mcw = new DefaultClassInstrumentor(classNamesProvider, instrumentationData, cw);
         cr.accept(mcw, ClassReader.EXPAND_FRAMES);
         byte[] b2 = cw.toByteArray();
         return b2;

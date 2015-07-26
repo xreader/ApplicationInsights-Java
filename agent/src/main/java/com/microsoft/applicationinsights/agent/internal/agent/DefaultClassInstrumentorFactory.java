@@ -1,5 +1,5 @@
 /*
- * ApplicationInsights-Java
+ * AppInsights-Java
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -21,37 +21,12 @@
 
 package com.microsoft.applicationinsights.agent.internal.agent;
 
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultClassInstrumentor;
+import org.objectweb.asm.ClassWriter;
 
 /**
- * Created by gupele on 5/11/2015.
+ * Created by gupele on 7/26/2015.
  */
-final class ByteCodeUtils {
-    private final static String BYTE_CODE_CTOR_NAME = "<init>";
-    private final static String BYTE_CODE_STATIC_CTOR_NAME = "<clinit>";
-
-    static boolean isInterface(int access) {
-        return (access & Opcodes.ACC_INTERFACE) != 0;
-    }
-
-    static boolean isAbstract(int access) {
-        return (access & Opcodes.ACC_ABSTRACT) != 0;
-    }
-
-    static boolean isPrivate(int access) {
-        return (access & Opcodes.ACC_PRIVATE) != 0;
-    }
-
-    static boolean isStatic(int access) {
-        return (access & Opcodes.ACC_STATIC) != 0;
-    }
-
-    static boolean isConstructor(String methodName) {
-        return BYTE_CODE_CTOR_NAME.equals(methodName) || BYTE_CODE_STATIC_CTOR_NAME.startsWith(methodName);
-    }
-
-    static boolean isLargeType(Type type) {
-        return type.getSize() == 2;
-    }
+interface DefaultClassInstrumentorFactory {
+    DefaultClassInstrumentor create(ClassInstrumentationData instrumentationData, ClassWriter cw);
 }

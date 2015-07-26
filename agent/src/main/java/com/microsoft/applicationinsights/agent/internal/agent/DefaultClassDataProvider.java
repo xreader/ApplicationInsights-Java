@@ -27,20 +27,34 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Collection;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.*;
 import com.microsoft.applicationinsights.agent.internal.config.AgentConfiguration;
 import com.microsoft.applicationinsights.agent.internal.coresync.InstrumentedClassType;
 import com.microsoft.applicationinsights.agent.internal.logger.InternalAgentLogger;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * Created by gupele on 5/11/2015.
  */
-class DefaultClassDataProvider implements ClassDataProvider {
-    private final static String HIBERNATE_SESSION_IMPL_CLASS_NAME = "org/hibernate/impl/SessionImpl";
-    private final static String HIBERNATE_STATELESS_SESSION_IMPL_CLASS_NAME = "org/hibernate/impl/StatelessSessionImpl";
+final class DefaultClassDataProvider implements ClassDataProvider, MethodInstrumentorsFactory {
 
-    private final static String HTTP_CLASS_NAME = "sun/net/www/protocol/http/HttpURLConnection$HttpInputStream";
-    private final static String HTTP_METHOD_NAME = "read";
-    private final static String HTTP_METHOD_SIGNATURE = "([BII)I";
+    private final static String HTTP_CLIENT_43_CLASS_NAME = "org/apache/http/impl/client/InternalHttpClient";
+    private final static String HTTP_CLIENT_METHOD_43_NAME = "doExecute";
+    private final static String HTTP_CLIENT_METHOD_43_SIGNATURE = "(Lorg/apache/http/HttpHost;Lorg/apache/http/HttpRequest;Lorg/apache/http/protocol/HttpContext;)Lorg/apache/http/client/methods/CloseableHttpResponse;";
+
+    private final static String HTTP_CLIENT_42_CLASS_NAME = "org/apache/http/impl/client/AbstractHttpClient";
+    private final static String HTTP_CLIENT_METHOD_42_NAME = "execute";
+    private final static String HTTP_CLIENT_METHOD_42_SIGNATURE = "(Lorg/apache/http/HttpHost;Lorg/apache/http/HttpRequest;Lorg/apache/http/protocol/HttpContext;)Lorg/apache/http/HttpResponse;";
+
+    private final static String OK_HTTP_CLIENT_CALL_CLASS_NAME = "com/squareup/okhttp/Call";
+    private final static String OK_HTTP_CLIENT_CALL_METHOD_NAME = "execute";
+    private final static String OK_HTTP_CLIENT_CALL_METHOD_SIGNATURE = "()Lcom/squareup/okhttp/Response;";
+
+    private final static String OK_HTTP_CLIENT_CALL_ASYNC_CLASS_NAME = "com/squareup/okhttp/Call$AsyncCall";
+    private final static String OK_HTTP_CLIENT_CALL_ASYNC_METHOD_NAME = "execute";
+    private final static String OK_HTTP_CLIENT_CALL_ASYNC_METHOD_SIGNATURE = "()V";
 
     private final static String[] EXCLUDED_CLASS_PREFIXES = new String[] {
         "java/",
@@ -91,35 +105,12 @@ class DefaultClassDataProvider implements ClassDataProvider {
         "executeUpdate"
     };
 
-    private final static String[] HIBERNATE_SESSION_IMPL_METHODS_TO_TRACK = {
-        "delete",
-        "execute",
-        "executeNativeUpdate",
-        "executeUpdate",
-        "find",
-        "get",
-        "save",
-        "list",
-        "load",
-        "saveOrUpdate",
-        "update"
-    };
-
-    private final static String[] HIBERNATE_STATELESS_SESSION_IMPL_METHODS_TO_TRACK = {
-        "delete",
-        "get",
-        "insert",
-        "list",
-        "update"
-    };
-
-    private AgentConfiguration agentConfiguration;
-
     private final HashSet<String> sqlClasses = new HashSet<String>();
-    private final HashSet<String> httpClasses = new HashSet<String>();
     private final HashSet<String> excludedPaths;
 
     private final HashMap<String, ClassInstrumentationData> classesToInstrument = new HashMap<String, ClassInstrumentationData>();
+
+    private final InstrumentorsProvider instrumentorsProvider = new DefaultInstrumentorsProvider()
 
     private boolean builtInEnabled = true;
 
@@ -129,26 +120,28 @@ class DefaultClassDataProvider implements ClassDataProvider {
 
     @Override
     public void setConfiguration(AgentConfiguration agentConfiguration) {
-        this.agentConfiguration = agentConfiguration;
-        addConfigurationData();
+        addConfigurationData(agentConfiguration);
 
         if (builtInEnabled) {
             InternalAgentLogger.INSTANCE.trace("Adding built-in instrumentation");
 
             populateSqlClasses();
-            // populateHttpClasses();
-            addHibernate();
+            populateHttpClasses();
         }
     }
 
-    @Override
-    public boolean isSqlClass(String className) {
-        return sqlClasses.contains(className);
-    }
+    public ByteCodeTransformer getTransformerForClass(String className) {
+        ClassInstrumentationData classInstrumentationData = classInstrumentationData = classesToInstrument.remove(className);
+        if (classInstrumentationData == null) {
+            return null;
+        }
 
-    @Override
-    public boolean isHttpClass(String className) {
-        return httpClasses.contains(className);
+
+        try {
+        } catch (Throwable t) {
+        } finally {
+            return new ByteCodeTransformer(classInstrumentationData);
+        }
     }
 
     /**
@@ -158,19 +151,44 @@ class DefaultClassDataProvider implements ClassDataProvider {
      * @return The {@link ClassInstrumentationData}
      */
     @Override
-    public ClassInstrumentationData getAndRemove(String className) {
-        return classesToInstrument.remove(className);
+    public byte[] getAndRemove(String className, byte[] originalBuffer) {
+        ClassInstrumentationData classInstrumentationData = classesToInstrument.remove(className);
+
+        if (classInstrumentationData == null) {
+            if (className.indexOf("AbstractHttpClient") != -1) {
+                System.out.println("AbstractHttpClientn" + className);
+            }
+            return originalBuffer;
+        }
+
+        ClassReader cr = new ClassReader(originalBuffer);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+        DefaultClassInstrumentor mcw;
+        if (className.indexOf("com/squareup/okhttp/Call") != -1) {
+            System.out.println("contains::" + classesToInstrument.containsKey("classesToInstrument"));
+            mcw = new OkHttpClassInstrumentor(this, classInstrumentationData, cw);
+        } else {
+            mcw = new DefaultClassInstrumentor(this, classInstrumentationData, cw);
+        }
+
+        cr.accept(mcw, ClassReader.EXPAND_FRAMES);
+        byte[] b2 = cw.toByteArray();
+        return b2;
     }
 
-    private void addHibernate() {
-        HashSet<String> methodNames = new HashSet<String>(Arrays.asList(HIBERNATE_SESSION_IMPL_METHODS_TO_TRACK));
-
-        addToClasses(HIBERNATE_SESSION_IMPL_CLASS_NAME, InstrumentedClassType.SQL, methodNames);
-
-        methodNames.clear();
-        methodNames.addAll(Arrays.asList(HIBERNATE_STATELESS_SESSION_IMPL_METHODS_TO_TRACK));
-
-        addToClasses(HIBERNATE_STATELESS_SESSION_IMPL_CLASS_NAME,InstrumentedClassType.SQL, methodNames);
+    @Override
+    public MethodVisitor getMethodVisitor(MethodInstrumentationDecision decision,
+                                                      int access,
+                                                      String desc,
+                                                      String className,
+                                                      String methodName,
+                                                      MethodVisitor methodVisitor,
+                                                      String fieldName) {
+        if (className.indexOf("AbstractHttpClient") != -1) {
+            System.out.println("AbstractHttpClient:" + className);
+        }
+        return instrumentorsProvider.getMethodVisitor();
     }
 
     private void populateSqlClasses() {
@@ -178,21 +196,54 @@ class DefaultClassDataProvider implements ClassDataProvider {
 
         HashSet<String> methodNamesOnly = new HashSet<String>(Arrays.asList(JDBC_METHODS_TO_TRACK));
 
+        MethodVisitorFactory factory = new MethodVisitorFactory() {
+            @Override
+            public DefaultMethodInstrumentor build(int access, String desc, String className, String methodName, MethodVisitor methodVisitor, String fieldName) {
+                return new SqlStatementMethodInstrumentor(access, desc, className, methodName, methodName);
+            }
+        };
         for (String className : sqlClasses) {
-            addToClasses(className, InstrumentedClassType.SQL, methodNamesOnly);
+            ClassInstrumentationData data =
+                    new ClassInstrumentationData(className, InstrumentedClassType.SQL)
+                            .setReportCaughtExceptions(false)
+                            .setReportExecutionTime(true);
+            for (String methodName : methodNamesOnly) {
+                data.addMethod(methodName, null, false, true);
+                instrumentorsProvider.addMethodVisitorFactory(className, methodName, null, factory);
+            }
+            classesToInstrument.put(className, data);
         }
     }
 
     private void populateHttpClasses() {
-        httpClasses.add(HTTP_CLASS_NAME);
+        MethodVisitorFactory methodVisitorBuilder = new MethodVisitorFactory() {
+            @Override
+            public DefaultMethodInstrumentor build(int access, String desc, String className, String methodName, MethodVisitor methodVisitor, String fieldName) {
+                System.out.println("htto");
+                return new HttpClientMethodInstrumentor(access, desc, className, methodName, methodVisitor);
+            }
+        };
 
-        ClassInstrumentationData data =
-                new ClassInstrumentationData(HTTP_CLASS_NAME, InstrumentedClassType.HTTP)
-                    .setReportCaughtExceptions(false)
-                    .setReportExecutionTime(true);
-        data.addMethod(HTTP_METHOD_NAME, HTTP_METHOD_SIGNATURE, false, true);
+        addToHttpClasses(methodVisitorBuilder, InstrumentedClassType.HTTP, HTTP_CLIENT_43_CLASS_NAME, HTTP_CLIENT_METHOD_43_NAME, HTTP_CLIENT_METHOD_43_SIGNATURE);
+        addToHttpClasses(methodVisitorBuilder, InstrumentedClassType.HTTP, HTTP_CLIENT_42_CLASS_NAME, HTTP_CLIENT_METHOD_42_NAME, HTTP_CLIENT_METHOD_42_SIGNATURE);
 
-        classesToInstrument.put(data.getClassName(), data);
+        methodVisitorBuilder = new MethodVisitorFactory() {
+            @Override
+            public DefaultMethodInstrumentor build(int access, String desc, String className, String methodName, MethodVisitor methodVisitor, String fieldName) {
+                System.out.println("ok!");
+                return new OkHttpMethodInstrumentor(access, desc, className, methodName, methodVisitor, fieldName);
+            }
+        };
+        addToHttpClasses(methodVisitorBuilder, InstrumentedClassType.HTTP, OK_HTTP_CLIENT_CALL_CLASS_NAME, OK_HTTP_CLIENT_CALL_METHOD_NAME, OK_HTTP_CLIENT_CALL_METHOD_SIGNATURE);
+
+        methodVisitorBuilder = new MethodVisitorFactory() {
+            @Override
+            public DefaultMethodInstrumentor build(int access, String desc, String className, String methodName, MethodVisitor methodVisitor, String fieldName) {
+                System.out.println("okasync!");
+                return new OkHttpAsyncCallMethodInstrumentor(access, desc, className, methodName, methodVisitor, fieldName);
+            }
+        };
+        addToHttpClasses(methodVisitorBuilder, InstrumentedClassType.HTTP, OK_HTTP_CLIENT_CALL_ASYNC_CLASS_NAME, OK_HTTP_CLIENT_CALL_ASYNC_METHOD_NAME, OK_HTTP_CLIENT_CALL_ASYNC_METHOD_SIGNATURE);
     }
 
     private boolean isExcluded(String className) {
@@ -204,7 +255,7 @@ class DefaultClassDataProvider implements ClassDataProvider {
         return false;
     }
 
-    private void addConfigurationData() {
+    private void addConfigurationData(AgentConfiguration agentConfiguration) {
         if (agentConfiguration == null) {
             return;
         }
@@ -227,14 +278,16 @@ class DefaultClassDataProvider implements ClassDataProvider {
         excludedPaths.addAll(agentConfiguration.getExcludedPrefixes());
     }
 
-    private void addToClasses(String className, InstrumentedClassType type, Collection<String> methodNamesOnly) {
+    private void addToHttpClasses(MethodVisitorFactory builder, InstrumentedClassType type, String className, String methodName, String methodSignature) {
+        instrumentorsProvider.addMethodVisitorFactory(className, methodName, methodSignature, builder);
+
         ClassInstrumentationData data =
                 new ClassInstrumentationData(className, type)
-                .setReportCaughtExceptions(false)
-                .setReportExecutionTime(true);
-        for (String methodName : methodNamesOnly) {
-            data.addMethod(methodName, null, false, true);
-        }
-        classesToInstrument.put(className, data);
+                        .setReportCaughtExceptions(false)
+                        .setReportExecutionTime(true);
+        data.addMethod(methodName, methodSignature, false, true);
+
+        System.out.println("Adding:" + data.getClassName());
+        classesToInstrument.put(data.getClassName(), data);
     }
 }

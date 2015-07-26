@@ -21,8 +21,13 @@
 
 package com.microsoft.applicationinsights.agent.internal.agent;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultClassInstrumentor;
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultMethodInstrumentor;
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.SqlStatementMethodInstrumentor;
 import com.microsoft.applicationinsights.agent.internal.common.StringUtils;
 import com.microsoft.applicationinsights.agent.internal.coresync.InstrumentedClassType;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * An 'instrumented' class data
@@ -41,9 +46,16 @@ public final class ClassInstrumentationData {
     private boolean reportExecutionTime;
     private boolean reportCaughtExceptions;
 
+    private DefaultClassInstrumentorFactory classVisitorFactory;
+
     public ClassInstrumentationData(String className, InstrumentedClassType classType) {
+        this(className, classType, null);
+    }
+
+    public ClassInstrumentationData(String className, InstrumentedClassType classType, DefaultClassInstrumentorFactory classVisitorFactory) {
         this.className = className;
         this.classType = classType;
+        this.classVisitorFactory = classVisitorFactory;
         this.methodInstrumentationInfo = new MethodInstrumentationInfo();
     }
 
@@ -98,6 +110,13 @@ public final class ClassInstrumentationData {
 
     public boolean isReportCaughtExceptions() {
         return reportCaughtExceptions;
+    }
+
+    public DefaultClassInstrumentor getDefaultClassInstrumentor(ClassWriter cw) {
+        if (classVisitorFactory == null) {
+            return new DefaultClassInstrumentor(this, cw);
+        }
+        return classVisitorFactory.create(this, cw);
     }
 }
 

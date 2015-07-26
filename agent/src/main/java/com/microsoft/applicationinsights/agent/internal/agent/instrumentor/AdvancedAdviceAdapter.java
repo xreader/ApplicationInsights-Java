@@ -19,7 +19,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.microsoft.applicationinsights.agent.internal.agent;
+package com.microsoft.applicationinsights.agent.internal.agent.instrumentor;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

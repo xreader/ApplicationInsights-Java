@@ -21,6 +21,8 @@
 
 package com.microsoft.applicationinsights.agent.internal.agent;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultClassInstrumentor;
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.MethodInstrumentorsFactory;
 import com.microsoft.applicationinsights.agent.internal.coresync.InstrumentedClassType;
 
 import org.junit.Test;
@@ -45,7 +47,7 @@ public final class EnterExitClassVisitorTest {
         tested.visit(Opcodes.ASM5, Opcodes.ACC_INTERFACE, "java/lang/Runnable", "()V", null, null);
         tested.visitMethod(Opcodes.ACC_INTERFACE, "run", "()V", null, new String[]{});
 
-        Mockito.verify(mockFactory, Mockito.never()).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class));
+        Mockito.verify(mockFactory, Mockito.never()).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class), anyString());
     }
 
     @Test
@@ -56,7 +58,7 @@ public final class EnterExitClassVisitorTest {
         tested.visit(Opcodes.ASM5, ~Opcodes.ACC_INTERFACE, "java/lang/String", "()V", null, null);
         tested.visitMethod(~Opcodes.ACC_INTERFACE, "<init>", "()V", null, new String[]{});
 
-        Mockito.verify(mockFactory, Mockito.never()).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class));
+        Mockito.verify(mockFactory, Mockito.never()).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class), anyString());
     }
 
     @Test
@@ -67,7 +69,7 @@ public final class EnterExitClassVisitorTest {
         tested.visit(Opcodes.ASM5, ~Opcodes.ACC_INTERFACE, "java/lang/String", "()V", null, null);
         tested.visitMethod(~Opcodes.ACC_INTERFACE, "<clinit>", "()V", null, new String[]{});
 
-        Mockito.verify(mockFactory, Mockito.never()).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class));
+        Mockito.verify(mockFactory, Mockito.never()).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class), anyString());
     }
 
     @Test
@@ -79,6 +81,6 @@ public final class EnterExitClassVisitorTest {
         tested.visit(Opcodes.ASM5, ~Opcodes.ACC_INTERFACE, "java/lang/String", "()V", null, null);
         tested.visitMethod(~(Opcodes.ACC_INTERFACE | Opcodes.ACC_PRIVATE), "indexOf", "(Ljava/lang/String;)V", null, new String[]{});
 
-        Mockito.verify(mockFactory, Mockito.times(1)).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class));
+        Mockito.verify(mockFactory, Mockito.times(1)).getMethodVisitor(any(MethodInstrumentationDecision.class), anyInt(), anyString(), anyString(), anyString(), any(MethodVisitor.class), anyString());
     }
 }

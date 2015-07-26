@@ -19,30 +19,39 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.microsoft.applicationinsights.agent.internal.agent;
+package com.microsoft.applicationinsights.agent.internal.agent.instrumentor;
+
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
- * The class holds the type of actions that should be done on an instrumented method
- * The class is the 'decision' for the method after taking into consideration init/configuration data
- *
- * Note, it is recommended to build an instance with {@link com.microsoft.applicationinsights.agent.internal.agent.MethodInstrumentationDecisionBuilder}
- *
- * Created by gupele on 5/31/2015.
+ * Created by gupele on 5/11/2015.
  */
-public final class MethodInstrumentationDecision {
-    private final boolean reportCaughtExceptions;
-    private final boolean reportExecutionTime;
+final class ByteCodeUtils {
+    private final static String BYTE_CODE_CTOR_NAME = "<init>";
+    private final static String BYTE_CODE_STATIC_CTOR_NAME = "<clinit>";
 
-    public MethodInstrumentationDecision(boolean reportCaughtExceptions, boolean reportExecutionTime) {
-        this.reportCaughtExceptions = reportCaughtExceptions;
-        this.reportExecutionTime = reportExecutionTime;
+    static boolean isInterface(int access) {
+        return (access & Opcodes.ACC_INTERFACE) != 0;
     }
 
-    public boolean isReportCaughtExceptions() {
-        return reportCaughtExceptions;
+    static boolean isAbstract(int access) {
+        return (access & Opcodes.ACC_ABSTRACT) != 0;
     }
 
-    public boolean isReportExecutionTime() {
-        return reportExecutionTime;
+    static boolean isPrivate(int access) {
+        return (access & Opcodes.ACC_PRIVATE) != 0;
+    }
+
+    static boolean isStatic(int access) {
+        return (access & Opcodes.ACC_STATIC) != 0;
+    }
+
+    static boolean isConstructor(String methodName) {
+        return BYTE_CODE_CTOR_NAME.equals(methodName) || BYTE_CODE_STATIC_CTOR_NAME.startsWith(methodName);
+    }
+
+    static boolean isLargeType(Type type) {
+        return type.getSize() == 2;
     }
 }

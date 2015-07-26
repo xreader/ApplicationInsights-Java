@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 
+import com.google.common.base.Strings;
 import com.microsoft.applicationinsights.agent.internal.coresync.AgentNotificationsHandler;
 import com.microsoft.applicationinsights.agent.internal.coresync.InstrumentedClassType;
 
@@ -104,12 +105,6 @@ final class CoreAgentNotificationsHandler implements AgentNotificationsHandler {
     }
 
     @Override
-    public void onMethodEnterURL(String name, URL url) {
-        String urlAsString = (url == null) ? null : url.toString();
-        startMethod(InstrumentedClassType.HTTP, name, urlAsString);
-    }
-
-    @Override
     public void onMethodEnterSqlStatement(String name, Statement statement, String sqlStatement) {
         if (statement == null) {
             return;
@@ -151,6 +146,11 @@ final class CoreAgentNotificationsHandler implements AgentNotificationsHandler {
     @Override
     public void onMethodFinish(String name) {
         finalizeMethod(null, null);
+    }
+
+    @Override
+    public void onMethodSendingURLEnter(String name, String url) {
+        startMethod(InstrumentedClassType.HTTP, name, url);
     }
 
     private void startMethod(InstrumentedClassType type, String name, String... arguments) {
@@ -210,21 +210,26 @@ final class CoreAgentNotificationsHandler implements AgentNotificationsHandler {
         InternalLogger.INSTANCE.trace("Sending RDD event for '%s'", methodData.name);
 
         telemetryClient.track(telemetry);
-        if (throwable != null) {
-            ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry(throwable);
-            telemetryClient.track(exceptionTelemetry);
-        }
+        sentExceptionTelemetryIfNeeded(throwable);
     }
 
     private void sendHTTPTelemetry(MethodData methodData, Throwable throwable) {
         if (methodData.arguments != null && methodData.arguments.length == 1) {
             String url = methodData.arguments[0];
-            Duration duration = new Duration(nanoToMilliseconds(methodData.interval));
+            if (url != null) {
+                long durationInNano = nanoToMilliseconds(methodData.interval);
+                Duration duration = new Duration(nanoToMilliseconds(methodData.interval));
 
-            InternalLogger.INSTANCE.trace("Sending HTTP RDD event, URL: '%s'", url);
+                InternalLogger.INSTANCE.trace("Sending HTTP RDD event, URL: '%s', '%s' nanoseconds", url, durationInNano);
 
-            RemoteDependencyTelemetry telemetry = new RemoteDependencyTelemetry(url, null, duration, throwable == null);
-            telemetryClient.trackDependency(telemetry);
+                RemoteDependencyTelemetry telemetry = new RemoteDependencyTelemetry(url, null, duration, throwable == null);
+                telemetry.setDependencyKind(DependencyKind.HttpOnly);
+                telemetryClient.trackDependency(telemetry);
+                return;
+            }
+
+            InternalLogger.INSTANCE.trace("Found a call to HTTP RDD event, null URL");
+            sentExceptionTelemetryIfNeeded(throwable);
         }
     }
 
@@ -232,13 +237,26 @@ final class CoreAgentNotificationsHandler implements AgentNotificationsHandler {
         if (methodData.arguments != null && methodData.arguments.length == 2) {
             String dependencyName = methodData.arguments[0];
             String commandName = methodData.arguments[1];
-            Duration duration = new Duration(nanoToMilliseconds(methodData.interval));
+            long durationInNano = nanoToMilliseconds(methodData.interval);
+            Duration duration = new Duration(durationInNano);
 
-            InternalLogger.INSTANCE.trace("Sending Sql RDD event for '%s', command: '%s'", dependencyName, commandName);
+            InternalLogger.INSTANCE.trace("Sending Sql RDD event for '%s', command: '%s', '%s' nanoseconds", dependencyName, commandName, durationInNano);
 
             RemoteDependencyTelemetry telemetry = new RemoteDependencyTelemetry(dependencyName, commandName, duration, throwable == null);
+            telemetry.setDependencyKind(DependencyKind.SQL);
             telemetryClient.track(telemetry);
+
+            sentExceptionTelemetryIfNeeded(throwable);
         }
+    }
+
+    private void sentExceptionTelemetryIfNeeded(Throwable throwable) {
+        if (throwable == null) {
+            return;
+        }
+
+        ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry(throwable);
+        telemetryClient.track(exceptionTelemetry);
     }
 
     private static long nanoToMilliseconds(long nanoSeconds) {

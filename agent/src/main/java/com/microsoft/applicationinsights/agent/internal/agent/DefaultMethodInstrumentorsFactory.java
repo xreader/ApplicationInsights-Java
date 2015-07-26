@@ -21,12 +21,15 @@
 
 package com.microsoft.applicationinsights.agent.internal.agent;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultMethodInstrumentor;
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.HttpClientMethodInstrumentor;
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.SqlStatementMethodInstrumentor;
 import org.objectweb.asm.MethodVisitor;
 
 /**
  * Created by gupele on 5/20/2015.
  */
-final class DefaultMethodInstrumentorsFactory implements MethodInstrumentorsFactory {
+final class DefaultMethodInstrumentorsFactory {
     private final ClassDataProvider provider;
 
     public DefaultMethodInstrumentorsFactory(ClassDataProvider provider) {
@@ -35,7 +38,7 @@ final class DefaultMethodInstrumentorsFactory implements MethodInstrumentorsFact
 
     public DefaultMethodInstrumentor getMethodVisitor(MethodInstrumentationDecision decision, int access, String desc, String className, String methodName, MethodVisitor methodVisitor) {
         if (provider.isHttpClass(className)) {
-            return new HttpMethodInstrumentor(access, desc, className, methodName, methodVisitor);
+            return new HttpClientMethodInstrumentor(access, desc, className, methodName, methodVisitor);
         } else if (provider.isSqlClass(className)) {
             return new SqlStatementMethodInstrumentor(access, desc, className, methodName, methodVisitor);
         }

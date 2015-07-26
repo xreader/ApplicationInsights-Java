@@ -148,6 +148,8 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
             HttpEntity respEntity = response.getEntity();
             int code = response.getStatusLine().getStatusCode();
 
+            System.out.println("code:::" + code);
+
             return translateResponse(code, respEntity);
         } catch (ConnectionPoolTimeoutException e) {
             InternalLogger.INSTANCE.error("Failed to send, connection pool timeout exception");

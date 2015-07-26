@@ -21,9 +21,7 @@
 
 package com.microsoft.applicationinsights.agent.internal.coresync.impl;
 
-import java.net.URL;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.microsoft.applicationinsights.agent.internal.common.StringUtils;
@@ -71,17 +69,6 @@ public enum ImplementationsCoordinator implements AgentNotificationsHandler {
     }
 
     @Override
-    public void onMethodEnterURL(String name, URL url) {
-        try {
-            AgentNotificationsHandler implementation = getImplementation();
-            if (implementation != null) {
-                implementation.onMethodEnterURL(name, url);
-            }
-        } catch (Throwable t) {
-        }
-    }
-
-    @Override
     public void onMethodEnterSqlStatement(String name, Statement statement, String sqlStatement) {
         try {
             AgentNotificationsHandler implementation = getImplementation();
@@ -90,6 +77,18 @@ public enum ImplementationsCoordinator implements AgentNotificationsHandler {
                     sqlStatement = statement.toString();
                 }
                 implementation.onMethodEnterSqlStatement(name, statement, sqlStatement);
+            }
+        } catch (Throwable t) {
+        }
+    }
+
+    @Override
+    public void onMethodSendingURLEnter(String name, String url) {
+        try {
+            System.out.println(name + "," + url);
+            AgentNotificationsHandler implementation = getImplementation();
+            if (implementation != null) {
+                implementation.onMethodSendingURLEnter(name, url);
             }
         } catch (Throwable t) {
         }
@@ -109,6 +108,7 @@ public enum ImplementationsCoordinator implements AgentNotificationsHandler {
     @Override
     public void onMethodFinish(String name, Throwable throwable) {
         try {
+            System.out.println("name:::" + throwable.getClass().getName());
             AgentNotificationsHandler implementation = getImplementation();
             if (implementation != null) {
                 implementation.onMethodFinish(name, throwable);

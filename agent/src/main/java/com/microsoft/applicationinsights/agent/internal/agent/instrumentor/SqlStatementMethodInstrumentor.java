@@ -19,7 +19,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.microsoft.applicationinsights.agent.internal.agent;
+package com.microsoft.applicationinsights.agent.internal.agent.instrumentor;
 
 import com.microsoft.applicationinsights.agent.internal.coresync.impl.ImplementationsCoordinator;
 
@@ -29,7 +29,7 @@ import org.objectweb.asm.Type;
 /**
  * Created by gupele on 5/20/2015.
  */
-final class SqlStatementMethodInstrumentor extends DefaultMethodInstrumentor {
+public final class SqlStatementMethodInstrumentor extends DefaultMethodInstrumentor {
     private final static String ON_ENTER_METHOD_NANE = "onMethodEnterSqlStatement";
     private final static String ON_ENTER_METHOD_SIGNATURE = "(Ljava/lang/String;Ljava/sql/Statement;Ljava/lang/String;)V";
 

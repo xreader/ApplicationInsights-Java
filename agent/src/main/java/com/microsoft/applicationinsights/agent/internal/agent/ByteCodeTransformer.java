@@ -1,5 +1,5 @@
 /*
- * ApplicationInsights-Java
+ * AppInsights-Java
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -21,28 +21,36 @@
 
 package com.microsoft.applicationinsights.agent.internal.agent;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultClassInstrumentor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+
 /**
- * The class holds the type of actions that should be done on an instrumented method
- * The class is the 'decision' for the method after taking into consideration init/configuration data
- *
- * Note, it is recommended to build an instance with {@link com.microsoft.applicationinsights.agent.internal.agent.MethodInstrumentationDecisionBuilder}
- *
- * Created by gupele on 5/31/2015.
+ * Created by gupele on 7/26/2015.
  */
-public final class MethodInstrumentationDecision {
-    private final boolean reportCaughtExceptions;
-    private final boolean reportExecutionTime;
+public final class ByteCodeTransformer {
+    private final ClassInstrumentationData classInstrumentationData;
 
-    public MethodInstrumentationDecision(boolean reportCaughtExceptions, boolean reportExecutionTime) {
-        this.reportCaughtExceptions = reportCaughtExceptions;
-        this.reportExecutionTime = reportExecutionTime;
+    public ByteCodeTransformer(ClassInstrumentationData classInstrumentationData) {
+        this.classInstrumentationData = classInstrumentationData;
     }
 
-    public boolean isReportCaughtExceptions() {
-        return reportCaughtExceptions;
-    }
+    public byte[] transform(byte[] originalBuffer) {
+        try {
+            if (classInstrumentationData == null) {
+                return originalBuffer;
+            }
 
-    public boolean isReportExecutionTime() {
-        return reportExecutionTime;
+            ClassReader cr = new ClassReader(originalBuffer);
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+            DefaultClassInstrumentor mcw = classInstrumentationData.getDefaultClassInstrumentor(cw);
+
+            cr.accept(mcw, ClassReader.EXPAND_FRAMES);
+            byte[] newBuffer = cw.toByteArray();
+            return newBuffer;
+        } catch (Throwable t) {
+            return originalBuffer;
+        }
     }
 }

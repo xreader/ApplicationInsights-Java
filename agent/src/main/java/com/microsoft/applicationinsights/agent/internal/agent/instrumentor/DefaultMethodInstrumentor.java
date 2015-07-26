@@ -19,10 +19,12 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.microsoft.applicationinsights.agent.internal.agent;
+package com.microsoft.applicationinsights.agent.internal.agent.instrumentor;
 
 import java.util.HashSet;
 
+import com.microsoft.applicationinsights.agent.internal.agent.MethodInstrumentationDecision;
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.AdvancedAdviceAdapter;
 import com.microsoft.applicationinsights.agent.internal.common.StringUtils;
 import com.microsoft.applicationinsights.agent.internal.coresync.impl.ImplementationsCoordinator;
 
@@ -39,7 +41,7 @@ import org.objectweb.asm.Type;
  *
  * Created by gupele on 5/11/2015.
  */
-class DefaultMethodInstrumentor extends AdvancedAdviceAdapter {
+public class DefaultMethodInstrumentor extends AdvancedAdviceAdapter {
 
     private final static String THROWABLE_METHOD_NAME = "onThrowable";
     private final static String EXCEPTION_METHOD_SIGNATURE = "(Ljava/lang/String;Ljava/lang/Throwable;)V";
@@ -51,8 +53,6 @@ class DefaultMethodInstrumentor extends AdvancedAdviceAdapter {
     private final static String FINISH_METHOD_DEFAULT_SIGNATURE = "(Ljava/lang/String;)V";
     private final static String FINISH_METHOD_EXCEPTION_SIGNATURE = "(Ljava/lang/String;Ljava/lang/Throwable;)V";
 
-    private String owner;
-    private String methodName;
     private final boolean reportCaughtExceptions;
     private HashSet<Label> labels = null;
 
@@ -64,8 +64,6 @@ class DefaultMethodInstrumentor extends AdvancedAdviceAdapter {
                                      String methodName,
                                      MethodVisitor methodVisitor) {
         super(reportExecutionTime, ASM5, methodVisitor, access, owner, methodName, desc);
-        this.owner = owner;
-        this.methodName = methodName;
         this.reportCaughtExceptions = reportCaughtExceptions;
     }
 

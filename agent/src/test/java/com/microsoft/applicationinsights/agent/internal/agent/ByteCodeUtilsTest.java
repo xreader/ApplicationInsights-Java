@@ -21,6 +21,7 @@
 
 package com.microsoft.applicationinsights.agent.internal.agent;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.ByteCodeUtils;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 

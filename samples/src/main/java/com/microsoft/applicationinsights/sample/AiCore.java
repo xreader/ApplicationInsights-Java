@@ -44,62 +44,65 @@ public class AiCore {
             appInsights.getContext().setInstrumentationKey(args[0]);
         }
 
+        TelemetryConfiguration.getActive().setInstrumentationKey("2ab4ffa8-5d7d-4bb0-bf14-33d9c556be96");
         String iKey = appInsights.getContext().getInstrumentationKey();
         if (iKey == null) {
             System.out.println("Error: no iKey set in ApplicationInsights.xml or as a parameter for this program.");
             return;
         }
 
-        System.out.println("Application iKey set to " + appInsights.getContext().getInstrumentationKey());
-        TelemetryConfiguration.getActive().getChannel().setDeveloperMode(true);
+        for (int i = 0; i < 1000; ++i) {
 
-        System.out.println();
-        appInsights.getContext().getProperties().put("programmatic", "works");
-        System.out.println("Set context property      -- programmatic=works");
+            System.out.println("Application iKey set to " + appInsights.getContext().getInstrumentationKey());
+//            TelemetryConfiguration.getActive().getChannel().setDeveloperMode(true);
 
-        appInsights.trackPageView("default page");
-        System.out.println("[1] PageView              -- page=\"default page\"");
+            System.out.println();
+            appInsights.getContext().getProperties().put("programmatic", "works");
+            System.out.println("Set context property      -- programmatic=works");
 
-        // Tracking metrics event
-        Map<String, Double> metrics = new HashMap<String, Double>();
-        metrics.put("Answers", (double) 15);
-        appInsights.trackEvent("A test event", null, metrics);
-        System.out.println("[2] Custom Event (metric) -- name=\"A test event\", metric:Answers=15");
+            appInsights.trackPageView("default page");
+            System.out.println("[1] PageView              -- page=\"default page\"");
 
-        // Trace telemetry
-        appInsights.trackTrace("Things seem to be going well");
-        System.out.println("[3] Trace                 -- text=\"Things seem to be going well\"");
+            // Tracking metrics event
+            Map<String, Double> metrics = new HashMap<String, Double>();
+            metrics.put("Answers", (double) 15);
+            appInsights.trackEvent("A test event", null, metrics);
+            System.out.println("[2] Custom Event (metric) -- name=\"A test event\", metric:Answers=15");
 
-        // Metric Telemetry
-        MetricTelemetry mt = new MetricTelemetry("Test time", 17.0);
-        mt.setMax(20.0);
-        mt.setMin(10.0);
-        mt.setCount(100);
-        mt.setStandardDeviation(2.43);
-        appInsights.trackMetric(mt);
-        System.out.println("[4] Metric                -- metric:\"Test time\", value=17.0, Max=20.0, Min=10.0, Count=100 and STDV=2.43");
+            // Trace telemetry
+            appInsights.trackTrace("Things seem to be going well");
+            System.out.println("[3] Trace                 -- text=\"Things seem to be going well\"");
 
-        // Http Request Telemetry
-        RequestTelemetry rt = new RequestTelemetry("ping", new Date(), 4711, "200", true);
-        rt.setHttpMethod("GET");
-        rt.setUrl("http://tempuri.org/ping");
-        appInsights.track(rt);
-        System.out.println("[5] HttpRequest           -- url=\"http://tempuri.org/ping\", HttpMethod=\"GET\", request=\"ping\", duration=4711, response=200 and success=true");
+            // Metric Telemetry
+            MetricTelemetry mt = new MetricTelemetry("Test time", 17.0);
+            mt.setMax(20.0);
+            mt.setMin(10.0);
+            mt.setCount(100);
+            mt.setStandardDeviation(2.43);
+            appInsights.trackMetric(mt);
+            System.out.println("[4] Metric                -- metric:\"Test time\", value=17.0, Max=20.0, Min=10.0, Count=100 and STDV=2.43");
 
-        // Tracking Exception
-        try {
-            throw new Exception("This is only a test!");
-        } catch (Exception exc) {
-            appInsights.trackException(exc);
-            System.out.println("[6] Exception             -- message=\"This is only a test!\"");
+            // Http Request Telemetry
+            RequestTelemetry rt = new RequestTelemetry("ping", new Date(), 4711, "200", true);
+            rt.setHttpMethod("GET");
+            rt.setUrl("http://tempuri.org/ping");
+            appInsights.track(rt);
+            System.out.println("[5] HttpRequest           -- url=\"http://tempuri.org/ping\", HttpMethod=\"GET\", request=\"ping\", duration=4711, response=200 and success=true");
+
+            // Tracking Exception
+            try {
+                throw new Exception("This is only a test!");
+            } catch (Exception exc) {
+                appInsights.trackException(exc);
+                System.out.println("[6] Exception             -- message=\"This is only a test!\"");
+            }
+
+            // Track Remote Dependency
+            RemoteDependencyTelemetry remoteDependencyTelemetry = new RemoteDependencyTelemetry(
+                    "DependencyName", "commandName", new Duration(0, 0, 1, 1, 1), true);
+            appInsights.trackDependency(remoteDependencyTelemetry);
+            System.out.println("[7] Remote Dependency       -- DependencyName, commandName, 61001 ms, success = true.");
         }
-
-        // Track Remote Dependency
-        RemoteDependencyTelemetry remoteDependencyTelemetry = new RemoteDependencyTelemetry(
-                "DependencyName", "commandName", new Duration(0, 0, 1, 1, 1), true);
-        appInsights.trackDependency(remoteDependencyTelemetry);
-        System.out.println("[7] Remote Dependency       -- DependencyName, commandName, 61001 ms, success = true.");
-
         System.out.println();
         System.out.println("Press any key to exit");
         System.in.read();

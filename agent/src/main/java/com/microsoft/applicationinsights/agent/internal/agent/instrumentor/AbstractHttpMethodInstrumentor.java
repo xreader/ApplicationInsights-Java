@@ -1,5 +1,5 @@
 /*
- * ApplicationInsights-Java
+ * AppInsights-Java
  * Copyright (c) Microsoft Corporation
  * All rights reserved.
  *
@@ -19,13 +19,26 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.microsoft.applicationinsights.agent.internal.agent;
+package com.microsoft.applicationinsights.agent.internal.agent.instrumentor;
 
+import com.microsoft.applicationinsights.agent.internal.agent.instrumentor.DefaultMethodInstrumentor;
+import com.microsoft.applicationinsights.agent.internal.coresync.impl.ImplementationsCoordinator;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 /**
- * Created by gupele on 5/31/2015.
+ * Created by gupele on 7/23/2015.
  */
-interface MethodInstrumentorsFactory {
-    DefaultMethodInstrumentor getMethodVisitor(MethodInstrumentationDecision decision, int access, String desc, String className, String methodName, MethodVisitor methodVisitor);
+abstract class AbstractHttpMethodInstrumentor extends DefaultMethodInstrumentor {
+    protected final static String ON_ENTER_METHOD_NANE = "onMethodSendingURLEnter";
+    protected final static String ON_ENTER_METHOD_SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;)V";
+
+    protected final String implementationCoordinatorInternalName;
+    protected final String implementationCoordinatorJavaName;
+
+    public AbstractHttpMethodInstrumentor(int access, String desc, String owner, String methodName, MethodVisitor methodVisitor) {
+        super(false, true, access, desc, owner, methodName, methodVisitor);
+        implementationCoordinatorInternalName = Type.getInternalName(ImplementationsCoordinator.class);
+        implementationCoordinatorJavaName = "L" + implementationCoordinatorInternalName + ";";
+    }
 }

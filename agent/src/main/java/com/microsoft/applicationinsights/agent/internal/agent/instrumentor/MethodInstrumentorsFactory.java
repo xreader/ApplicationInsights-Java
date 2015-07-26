@@ -19,30 +19,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.microsoft.applicationinsights.agent.internal.agent;
+package com.microsoft.applicationinsights.agent.internal.agent.instrumentor;
+
+import com.microsoft.applicationinsights.agent.internal.agent.MethodInstrumentationDecision;
+import org.objectweb.asm.MethodVisitor;
 
 /**
- * The class holds the type of actions that should be done on an instrumented method
- * The class is the 'decision' for the method after taking into consideration init/configuration data
- *
- * Note, it is recommended to build an instance with {@link com.microsoft.applicationinsights.agent.internal.agent.MethodInstrumentationDecisionBuilder}
- *
  * Created by gupele on 5/31/2015.
  */
-public final class MethodInstrumentationDecision {
-    private final boolean reportCaughtExceptions;
-    private final boolean reportExecutionTime;
-
-    public MethodInstrumentationDecision(boolean reportCaughtExceptions, boolean reportExecutionTime) {
-        this.reportCaughtExceptions = reportCaughtExceptions;
-        this.reportExecutionTime = reportExecutionTime;
-    }
-
-    public boolean isReportCaughtExceptions() {
-        return reportCaughtExceptions;
-    }
-
-    public boolean isReportExecutionTime() {
-        return reportExecutionTime;
-    }
+public interface MethodInstrumentorsFactory {
+    MethodVisitor getMethodVisitor(MethodInstrumentationDecision decision, int access, String desc, String className, String methodName, MethodVisitor methodVisitor, String fieldName);
 }
