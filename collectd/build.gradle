@@ -24,7 +24,7 @@ plugins {
 }
 
 apply from: "$buildScriptsDir/common-java.gradle"
-apply from: "$buildScriptsDir/publishing.gradle"
+//apply from: "$buildScriptsDir/self-contained-publishing.gradle"
 
 // Since we're building the shadow jar, we have no use in the jar contains only CollectD code.
 jar.enabled = false
