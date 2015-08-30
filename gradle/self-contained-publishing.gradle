@@ -69,7 +69,7 @@ task prepareJavadocArchive(type: Jar){
 task copyLibsToGlobalArtifactsFolder(type: Copy) {
     from libsDir
     into new File(artifactsDirectoryRoot, project.name)
-    dependsOn assemble
+    dependsOn assemble, prepareSourcesArchive, prepareJavadocArchive
 }
 
 task prepare {
