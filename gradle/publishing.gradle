@@ -97,7 +97,7 @@ task prepareJavadocArchive(type: Jar){
 
 task copyLibsToGlobalArtifactsFolder(type: Copy) {
     from libsDir
-    into new File(artifactsDirectoryRoot, project.name)
+    into new File(artifactsDirectoryRootForSign)
     dependsOn assemble, prepareSourcesArchive, prepareJavadocArchive
 }
 

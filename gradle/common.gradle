@@ -26,7 +26,11 @@ ext {
     msftAppInsightsJavaSdk = "$msftAppInsights Java SDK"
 
     rootProjectBuildDir = new File(rootDir, 'build')
+    publicProjectBuildDir = new File(rootDir, 'Public')
+
     artifactsDirectoryRoot = new File(rootProjectBuildDir, 'artifacts')
+    artifactsDirectoryRootForSign = new File(publicProjectBuildDir, 'FilesToSign')
+
     remoteTestResultsDirName = 'remote-tests-results'
     remoteTestReportDirName = 'remote-tests-reports'
 }
