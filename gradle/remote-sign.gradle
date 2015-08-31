@@ -61,7 +61,7 @@ repositories {
     mavenCentral()
 }
 
-task prepareRemoteSign {
+task prepareRemoteSign << {
     dependsOn copyToRemoteJenkinsMachine
 }
 
