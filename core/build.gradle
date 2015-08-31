@@ -21,6 +21,8 @@
 
 apply from: "$buildScriptsDir/common-java.gradle"
 apply from: "$buildScriptsDir/publishing.gradle"
+apply from: "$buildScriptsDir/remote-sign.gradle"
+
 if (System.env."windir" != null) {
     apply from: "native.gradle"
 } else {
