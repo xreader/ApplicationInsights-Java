@@ -27,32 +27,30 @@ def remoteJenkinsMachineFileDir = "\\adxsdkbuilder\\tosign"
 task copyToRemoteJenkinsMachine(type: Copy) {
 
     println 'start copy'
-    from libsDir
-    into new File(artifactsSelfContainedDirectoryRoot, project.name)
 
 //    def fileNames = []
 //
-//    from (fileTree(new File(artifactsDirectoryRoot, project.name)).files) {
-//        inclde {
-//            it.file.name == "*.jar"
-////            fileNames << it.file.name
-//        }
-//    }
-//    into remoteJenkinsMachineFileDir
-//
-//    println 'done copy'
-//
-//    def token = "c0a032f8ac5928ab21995eefb39bc83ea44069f5"
-//    def descParameter = "Application%20Insights%20Java%20SDK%20version%20<version>%20signing"
-//    def keywordsParameter = "Application%20Insights%2C%20Java%20SDK"
-//
-//    def urlAddress = "curl -H Authorization: OAuth " + token +
-//            "http://azuresdkci.cloudapp.net/job/sign-jar/build?delay=0sec?Description="
-//                        + descParameter + "?Keywords=" + keywordsParameter;
-//
-//    println 'urlAddress'
-//    println urlAddress
-//
+    from (fileTree(new File(artifactsDirectoryRoot, project.name)).files) {
+        include {
+            it.file.name == "*.jar"
+//            fileNames << it.file.name
+        }
+    }
+    into remoteJenkinsMachineFileDir
+
+    println 'done copy'
+
+    def token = "c0a032f8ac5928ab21995eefb39bc83ea44069f5"
+    def descParameter = "Application%20Insights%20Java%20SDK%20version%20<version>%20signing"
+    def keywordsParameter = "Application%20Insights%2C%20Java%20SDK"
+
+    def urlAddress = "curl -H Authorization: OAuth " + token +
+            "http://azuresdkci.cloudapp.net/job/sign-jar/build?delay=0sec?Description="
+                        + descParameter + "?Keywords=" + keywordsParameter;
+
+    println 'urlAddress'
+    println urlAddress
+
 //    def remoteSign = urlAddress.execute()
 //    remoteSign.waitFor()
 
