@@ -19,7 +19,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+//import groovyx.net.http.RESTClient
+
 apply plugin: 'maven'
+apply plugin: 'groovy'
 apply from: "$buildScriptsDir/provided-configuration.gradle"
 
 def remoteJenkinsMachineFileDir = "\\adxsdkbuilder\\tosign"
@@ -38,19 +41,49 @@ task copyToRemoteJenkinsMachine(type: Copy) {
     }
     into remoteJenkinsMachineFileDir
 
-    println 'done copy'
+    println 'done:copy'
 
-    def token = "c0a032f8ac5928ab21995eefb39bc83ea44069f5"
-    def descParameter = "Application%20Insights%20Java%20SDK%20version%20<version>%20signing"
+//    def token = "c0a032f8ac5928ab21995eefb39bc83ea44069f5"
+    def token = "20e945f23d930503b9a26a78032d1e96"
+    def descParameter = "Application%20Insights%20Java%20SDK%20version%201.0.2%20signing"
     def keywordsParameter = "Application%20Insights%2C%20Java%20SDK"
 
-    def urlAddress = "curl -H Authorization: OAuth $token http://azuresdkci.cloudapp.net/job/sign-jar/build?delay=0sec?Description=$descParameter?Keywords=$keywordsParameter"
+//    def urlAddress = "curl -H Authorization: OAuth $token http://azuresdkci.cloudapp.net/job/sign-jar/build?delay=0sec?Description=$descParameter?Keywords=$keywordsParameter"
 
-    println 'urlAddress'
-    println urlAddress
+    def urlParameters = "delay=0sec&Description=$descParameter&Keywords=$keywordsParameter";
+    println urlParameters
+//    def urlParameters = "isRelease=true&version=0.9.9";
 
-//    def remoteSign = urlAddress.execute()
-//    remoteSign.waitFor()
+    def postData = urlParameters.getBytes();
+    def postDataLength = postData.length;
+
+    def url = new URL("http://azuresdkci.cloudapp.net/job/sign-jar/buildWithParameters");
+//    def url = new URL("http://ai-javabuild-01:8080/job/AppInsights-Java-Staged/buildWithParameters");
+
+    println url
+//
+    def con = (HttpURLConnection)(url.openConnection());
+    if (con == null) {
+        println "Failed!"
+    }
+    // http://azuresdkci.cloudapp.net/job/sign-jar/buildWithParameters?delay=0sec&Description=Application%20Insights%20Java%20SDK%20version%201.0.2%20signing&Keywords=Application%20Insights%2C%20Java%20SDK
+
+    con.setRequestMethod("POST");
+    con.setRequestProperty("Content-Type", "application/xml");
+    con.setRequestProperty("Host", "azuresdkci.cloudapp.net:8080");
+    con.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+    con.setUseCaches(false );
+//    con.setRequestProperty ("Authorization", "Basic YW1ub25zaDpmOTIxYzk2NDkyNGFhMmVlYzI1MzY0NjhkY2QxYzI2Yw==");
+    con.setRequestProperty ("Authorization", "Basic Z3VwZWxlOmMwYTAzMmY4YWM1OTI4YWIyMTk5NWVlZmIzOWJjODNlYTQ0MDY5ZjU=");
+//
+    con.setDoOutput(true);
+//    println con.getResponseCode()
+    def wr = new DataOutputStream(con.getOutputStream());
+    wr.write(postData);
+    wr.flush();
+    wr.close();
+
+    println con.getResponseMessage()
 
     println 'done!!!'
 }
