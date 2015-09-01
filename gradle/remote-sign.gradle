@@ -47,7 +47,7 @@ task copyToRemoteJenkinsMachine(type: Copy) {
     def urlAddress = "curl -H Authorization: OAuth $token http://azuresdkci.cloudapp.net/job/sign-jar/build?delay=0sec?Description=$descParameter?Keywords=$keywordsParameter"
 
     println 'urlAddress'
-//    println urlAddress
+    println urlAddress
 
 //    def remoteSign = urlAddress.execute()
 //    remoteSign.waitFor()
