@@ -22,34 +22,36 @@
 apply plugin: 'signing'
 
 task gpgSign(type: Sign) {
+    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
+    logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
 
-    println 'start'
-    println rootDir.getParent()
-
-    def parentFolder = new File(rootDir.getParent())
-    parentFolder = new File(parentFolder.getParent())
-    def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java-Automatic')
-    def rootProjectBuildDir = new File(rootFolder.getAbsolutePath(), 'workspace')
-    rootProjectBuildDir = new File(rootProjectBuildDir, 'build')
-
-    def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
-
-    def jars = fileTree(artifactsSelfContainedDirectoryRoot) {
-        include '**/*.jar'
-    }
-
-    jars.files.each {
+    fileTree(dir: dirToSign).files.each {
         f -> sign f
-//        println 'Signed ' + $f.getName()
+            logger.info("[gpgSign] File $f added for gpg signing")
     }
-
-    println 'finish'
-//    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
-//    logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
-//
-//    fileTree(dir: dirToSign).files.each {
-//        f -> sign f
-//        logger.info("[gpgSign] File $f added for gpg signing")
-//    }
 }
 
+//task gpgSign(type: Sign) {
+//
+//    println 'start'
+//    println rootDir.getParent()
+//
+//    def parentFolder = new File(rootDir.getParent())
+//    parentFolder = new File(parentFolder.getParent())
+//    def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java-Automatic')
+//    def rootProjectBuildDir = new File(rootFolder.getAbsolutePath(), 'workspace')
+//    rootProjectBuildDir = new File(rootProjectBuildDir, 'build')
+//
+//    def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
+//
+//    def jars = fileTree(artifactsSelfContainedDirectoryRoot) {
+//        include '**/*.jar'
+//    }
+//
+//    jars.files.each {
+//        f -> sign f
+//    }
+//
+//    println 'finish'
+//}
+//

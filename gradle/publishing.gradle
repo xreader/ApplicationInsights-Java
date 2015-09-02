@@ -28,6 +28,8 @@ ext {
     whenPomConfigured = { p -> writePomToArtifactsDirectory(p, project.name) }
 }
 
+def baseFolder = new File(artifactsDirectoryRoot, "unsigned")
+
 def releaseNotesFileDir = "$project.buildDir/src/common/main/resources"
 task copyReleaseNotesToCommonResourcesDir(type: Copy) {
     from(rootDir) {
@@ -97,7 +99,7 @@ task prepareJavadocArchive(type: Jar){
 
 task copyLibsToGlobalArtifactsFolder(type: Copy) {
     from libsDir
-    into new File(artifactsDirectoryRoot, project.name)
+    into new File(baseFolder, project.name)
     dependsOn assemble, prepareSourcesArchive, prepareJavadocArchive
 }
 
@@ -175,7 +177,7 @@ def writePomToArtifactsDirectory(pomObject, directoryName) {
 }
 
 def getArtifactsDirectory(artifactId) {
-    File dir = new File(artifactsDirectoryRoot, artifactId)
+    File dir = new File(baseFolder, artifactId)
     dir.mkdirs()
 
     return dir

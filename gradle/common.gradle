@@ -27,8 +27,8 @@ ext {
 
     rootProjectBuildDir = new File(rootDir, 'build')
 
-    artifactsDirectoryRoot = new File(rootProjectBuildDir, 'maven-artifacts')
-    artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
+    artifactsDirectoryRoot = new File(rootProjectBuildDir, 'maven')
+    artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained')
 
     remoteTestResultsDirName = 'remote-tests-results'
     remoteTestReportDirName = 'remote-tests-reports'
