@@ -28,10 +28,10 @@ task gpgSign(type: Sign) {
     def artifactsDirectoryRoot = new File(rootProjectBuildDir, 'maven-artifacts')
     def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
 
-    def names = []
-    fileTree(artifactsSelfContainedDirectoryRoot).visit {
-        FileVisitDetails details->
-            println details.file.path
+    println artifactsSelfContainedDirectoryRoot
+
+    def names = fileTree(artifactsSelfContainedDirectoryRoot).matching {
+        exclude "pom.xml"
     }
 
     println names
