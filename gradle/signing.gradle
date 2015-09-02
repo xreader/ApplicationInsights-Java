@@ -24,9 +24,11 @@ apply plugin: 'signing'
 task gpgSign(type: Sign) {
 
     println 'start'
+    println 'root dir ' + rootDir
     println rootDir.getParent()
 
     def parentFolder = new File(rootDir.getParent())
+    parentFolder = new File(parentFolder.getParent())
     println 'parent folder ' + parentFolder
     def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java')
     println 'root folder ' + rootFolder
