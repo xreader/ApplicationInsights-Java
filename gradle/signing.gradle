@@ -32,7 +32,8 @@ task gpgSign(type: Sign) {
     println 'parent folder ' + parentFolder
     def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java')
     println 'root folder ' + rootFolder
-    def rootProjectBuildDir = new File(rootFolder.getAbsolutePath(), 'build')
+    def rootProjectBuildDir = new File(rootFolder.getAbsolutePath(), 'workspace')
+    rootProjectBuildDir = new File(rootProjectBuildDir, 'build')
 
     def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
 
