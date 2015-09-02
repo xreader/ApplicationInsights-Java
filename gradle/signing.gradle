@@ -19,12 +19,13 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+apply from: "$buildScriptsDir/common-java.gradle"
 apply plugin: 'signing'
 
 task gpgSign(type: Sign) {
 
     def names = []
-    fileTree(project.name).visit {
+    fileTree(new File(artifactsSelfContainedDirectoryRoot)).visit {
         FileVisitDetails details->
             names << details.file.path
     }
