@@ -44,7 +44,7 @@ task gpg(type: Sign) {
 
     copy {
         from "${sourceDir}"
-        into $outputDir
+        into "$outputDir"
     }
 
     fileTree(dir: outputDir).files.each {
