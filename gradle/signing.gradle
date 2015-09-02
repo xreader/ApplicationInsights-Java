@@ -44,8 +44,8 @@ task gpgSign(type: Sign) {
         include '**/*.jar'
     }
 
-    if (jars == null) {
-        println 'null'
+    if (jars != null) {
+        println 'nont null';
     }
 
     jars.visit {
