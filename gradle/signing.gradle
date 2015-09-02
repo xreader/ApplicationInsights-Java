@@ -40,8 +40,7 @@ task gpgSign(type: Sign) {
     println artifactsSelfContainedDirectoryRoot
     def list = []
 
-    def dir = new File(artifactsSelfContainedDirectoryRoot)
-    dir.eachFileRecurse (FileType.FILES) { file ->
+    artifactsSelfContainedDirectoryRoot.eachFileRecurse (FileType.FILES) { file ->
         list << file
     }
     list.each {
