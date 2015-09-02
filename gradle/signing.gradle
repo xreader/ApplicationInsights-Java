@@ -38,10 +38,10 @@ task gpgSign(type: Sign) {
     def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
     println 'artifactsSelfContainedDirectoryRoot ' + artifactsSelfContainedDirectoryRoot
 
-//    println artifactsSelfContainedDirectoryRoot
-//    artifactsSelfContainedDirectoryRoot.eachFile() { file->
-//        println file.getName()
-//    }
+    println artifactsSelfContainedDirectoryRoot
+    artifactsSelfContainedDirectoryRoot.eachFile() { file->
+        println file.getName()
+    }
 
     println 'finish'
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
