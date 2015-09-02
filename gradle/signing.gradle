@@ -27,13 +27,13 @@ task copyTask(type: Copy) {
 }
 
 task gpg(type: Sign) {
-    def sourceDir = new File(mainDirToSign, projectBuildNumberToSign)
+    def sourceDir = new File(mainDir, projectBuildNumber)
     sourceDir = new File(sourceDir, "build")
-    sourceDir = new File(sourceDir, projectArtifactsToSign)
+    sourceDir = new File(sourceDir, projectArtifactsType)
 
     def outputDir = new File(sourceDir, "signed-gpg");
 
-    sourceDir = new File(sourceDir, "unsigned")
+    sourceDir = new File(sourceDir, preSignedRootDir)
 
     assert sourceDir != null
     assert sourceDir.exists()
