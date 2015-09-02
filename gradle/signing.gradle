@@ -42,7 +42,7 @@ task gpg(type: Sign) {
 
     outputDir.mkdirs()
 
-    from $sourceDir
+    from ${sourceDir}
     into $outputDir
 
     fileTree(dir: outputDir).files.each {
