@@ -28,7 +28,7 @@ ext {
     whenPomConfigured = { p -> writePomToArtifactsDirectory(p, project.name) }
 }
 
-def baseFolder = new File(artifactsDirectoryRoot, "unsigned")
+def baseFolder = new File(artifactsDirectoryRoot, "after-build")
 
 def releaseNotesFileDir = "$project.buildDir/src/common/main/resources"
 task copyReleaseNotesToCommonResourcesDir(type: Copy) {
@@ -177,7 +177,7 @@ def writePomToArtifactsDirectory(pomObject, directoryName) {
 }
 
 def getArtifactsDirectory(artifactId) {
-    File mainDir = new File(artifactsDirectoryRoot, "unsigned")
+    File mainDir = new File(artifactsDirectoryRoot, "after-build")
     File dir = new File(mainDir, artifactId)
     dir.mkdirs()
 

@@ -33,7 +33,7 @@ task gpg(type: Sign) {
 
     def outputDir = new File(sourceDir, "signed-gpg");
 
-    sourceDir = new File(sourceDir, "unsigned")
+    sourceDir = new File(sourceDir, "after-build")
 
     assert sourceDir != null
     assert sourceDir.exists()
