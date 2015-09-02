@@ -42,8 +42,8 @@ task gpg(type: Sign) {
 
     outputDir.mkdirs()
 
-    from sourceDir
-    into outputDir
+    from $sourceDir
+    into $outputDir
 
     fileTree(dir: outputDir).files.each {
         f -> sign f
