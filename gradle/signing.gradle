@@ -22,8 +22,7 @@
 apply plugin: 'signing'
 
 task gpgSign(type: Sign) {
-    def dir = new File(mainDirToSign, projectNameToSign)
-    dir = new File(dir, projectBuildNumberToSign)
+    def dir = new File(mainDirToSign, projectBuildNumberToSign)
     dir = new File(dir, "build")
     dir = new File(dir, projectArtifactsToSign)
     dir = new File(dir, "unsigned")
