@@ -40,7 +40,7 @@ task gpgSign(type: Sign) {
 
     println artifactsSelfContainedDirectoryRoot
 
-    def jars = fileTree(dir: artifactsSelfContainedDirectoryRoot.getAbsolutePath()) {
+    def jars = fileTree(artifactsSelfContainedDirectoryRoot) {
         include '**/*.jar'
     }
 
