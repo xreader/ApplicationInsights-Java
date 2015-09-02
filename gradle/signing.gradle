@@ -32,7 +32,6 @@ task gpg(type: Sign) {
     sourceDir = new File(sourceDir, projectArtifactsToSign)
 
     def outputDir = new File(sourceDir, "signed-gpg");
-    outputDir.mkdirs()
 
     sourceDir = new File(sourceDir, "unsigned")
 
@@ -40,6 +39,8 @@ task gpg(type: Sign) {
     assert sourceDir.exists()
     assert sourceDir.isDirectory()
     logger.info("[gpgSign] Directory for gpg signing files set to $sourceDir")
+
+    outputDir.mkdirs()
 
     from sourceDir
     into outputDir
