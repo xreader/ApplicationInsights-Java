@@ -23,6 +23,8 @@ apply plugin: 'signing'
 
 task gpgSign(type: Sign) {
 
+    println 'start'
+
     def rootProjectBuildDir = new File(rootDir, 'build')
 
     def artifactsDirectoryRoot = new File(rootProjectBuildDir, 'maven-artifacts')
@@ -36,6 +38,7 @@ task gpgSign(type: Sign) {
 
     println names
 
+    println 'finish'
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
 //    logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
 //
