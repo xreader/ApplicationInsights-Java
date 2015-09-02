@@ -25,8 +25,8 @@ task gpgSign(type: Sign) {
 
     def rootProjectBuildDir = new File(rootDir, 'build')
 
-    artifactsDirectoryRoot = new File($rootProjectBuildDir, 'maven-artifacts')
-    artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
+    def artifactsDirectoryRoot = new File(rootProjectBuildDir, 'maven-artifacts')
+    def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
 
     def names = []
     fileTree(new File(artifactsSelfContainedDirectoryRoot)).visit {
