@@ -30,7 +30,7 @@ task gpgSign(type: Sign) {
     def parentFolder = new File(rootDir.getParent())
     parentFolder = new File(parentFolder.getParent())
     println 'parent folder ' + parentFolder
-    def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java')
+    def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java-Automatic')
     println 'root folder ' + rootFolder
     def rootProjectBuildDir = new File(rootFolder.getAbsolutePath(), 'workspace')
     rootProjectBuildDir = new File(rootProjectBuildDir, 'build')
