@@ -22,6 +22,7 @@
 apply plugin: 'maven'
 apply from: "$buildScriptsDir/provided-configuration.gradle"
 
+def baseFolder = new File(artifactsDirectoryRoot, "unsigned")
 def releaseNotesFileDir = "$project.buildDir/src/common/main/resources"
 
 task copyReleaseNotesToCommonResourcesDir(type: Copy) {
@@ -68,7 +69,7 @@ task prepareJavadocArchive(type: Jar){
 
 task copyLibsToGlobalArtifactsFolder(type: Copy) {
     from libsDir
-    into new File(artifactsSelfContainedDirectoryRoot, project.name)
+    into new File(baseFolder, project.name)
     dependsOn assemble, prepareSourcesArchive, prepareJavadocArchive
 }
 
@@ -84,7 +85,8 @@ ext {
 }
 
 def getArtifactsDirectory(artifactId) {
-    File dir = new File(artifactsDirectoryRoot, artifactId)
+    File mainDir = new File(artifactsDirectoryRoot, "unsigned")
+    File dir = new File(mainDir, artifactId)
     dir.mkdirs()
 
     return dir
