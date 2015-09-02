@@ -21,22 +21,33 @@
 
 apply plugin: 'signing'
 
+task copyTask(type: Copy) {
+    from 'src/main/webapp'
+    into 'build/explodedWar'
+}
+
 task gpg(type: Sign) {
-    def dirToSign = new File(mainDirToSign, projectBuildNumberToSign)
-    dirToSign = new File(dirToSign, "build")
-    dirToSign = new File(dirToSign, projectArtifactsToSign)
-    dirToSign = new File(dirToSign, "unsigned")
+    def sourceDir = new File(mainDirToSign, projectBuildNumberToSign)
+    sourceDir = new File(sourceDir, "build")
+    sourceDir = new File(sourceDir, projectArtifactsToSign)
 
-    assert dirToSign != null
-//    assert !dirToSign.isEmpty()
-    assert dirToSign.exists()
-    logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
+    def outputDir = new File(sourceDir, "signed-gpg");
+    outputDir.mkdirs()
 
-    fileTree(dir: dirToSign).files.each {
+    sourceDir = new File(sourceDir, "unsigned")
+
+    assert sourceDir != null
+    assert sourceDir.exists()
+    assert sourceDir.isDirectory()
+    logger.info("[gpgSign] Directory for gpg signing files set to $sourceDir")
+
+    from sourceDir
+    into outputDir
+
+    fileTree(dir: outputDir).files.each {
         f -> sign f
             logger.info("[gpgSign] File $f added for gpg signing")
     }
-//    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
 }
 
 task gpgSign {
