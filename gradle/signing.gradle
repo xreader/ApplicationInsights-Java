@@ -20,6 +20,7 @@
  */
 
 apply plugin: 'signing'
+apply plugin: 'java'
 
 task gpgSign(type: Sign) {
 
