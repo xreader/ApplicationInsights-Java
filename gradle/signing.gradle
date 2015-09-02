@@ -33,8 +33,9 @@ task gpgSign(type: Sign) {
     logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
 
     fileTree(dir: dirToSign).files.each {
-        f -> sign f
-            logger.info("[gpgSign] File $f added for gpg signing")
+        f -> println f
+//        f -> sign f
+//            logger.info("[gpgSign] File $f added for gpg signing")
     }
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
 }
