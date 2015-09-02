@@ -22,7 +22,7 @@
 apply plugin: 'maven'
 apply from: "$buildScriptsDir/provided-configuration.gradle"
 
-def baseFolder = new File(artifactsDirectoryRoot, "unsigned")
+def baseFolder = new File(artifactsSelfContainedDirectoryRoot, "after-build")
 def releaseNotesFileDir = "$project.buildDir/src/common/main/resources"
 
 task copyReleaseNotesToCommonResourcesDir(type: Copy) {
@@ -85,7 +85,7 @@ ext {
 }
 
 def getArtifactsDirectory(artifactId) {
-    File mainDir = new File(artifactsDirectoryRoot, "unsigned")
+    File mainDir = new File(artifactsSelfContainedDirectoryRoot, "after-build")
     File dir = new File(mainDir, artifactId)
     dir.mkdirs()
 
