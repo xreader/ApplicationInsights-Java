@@ -22,52 +22,17 @@
 apply plugin: 'signing'
 
 task gpgSign(type: Sign) {
-    def dir = new File(mainDirToSign, projectBuildNumberToSign)
-    dir = new File(dir, "build")
-    dir = new File(dir, projectArtifactsToSign)
-    dir = new File(dir, "unsigned")
+    def dirToSign = new File(mainDirToSign, projectBuildNumberToSign)
+    dirToSign = new File(dirToSign, "build")
+    dirToSign = new File(dirToSign, projectArtifactsToSign)
+    dirToSign = new File(dirToSign, "unsigned")
 
-    println dir
-    println dir
-    println dir
-    println dir
-    println dir
-    println dir
-    println dir
+    assert (dirToSign && !dirToSign.isEmpty() && dirToSign.exists())
+    logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
 
-//    assert (dir && !dir.isEmpty() && new $dir.exists())
-    logger.info("[gpgSign] Directory for gpg signing files set to $dir")
-
-    fileTree(dir: dir).files.each {
+    fileTree(dir: dirToSign).files.each {
         f -> sign f
             logger.info("[gpgSign] File $f added for gpg signing")
     }
-
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
-//    logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
 }
-
-//task gpgSign(type: Sign) {
-//
-//    println 'start'
-//    println rootDir.getParent()
-//
-//    def parentFolder = new File(rootDir.getParent())
-//    parentFolder = new File(parentFolder.getParent())
-//    def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java-Automatic')
-//    def rootProjectBuildDir = new File(rootFolder.getAbsolutePath(), 'workspace')
-//    rootProjectBuildDir = new File(rootProjectBuildDir, 'build')
-//
-//    def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
-//
-//    def jars = fileTree(artifactsSelfContainedDirectoryRoot) {
-//        include '**/*.jar'
-//    }
-//
-//    jars.files.each {
-//        f -> sign f
-//    }
-//
-//    println 'finish'
-//}
-//
