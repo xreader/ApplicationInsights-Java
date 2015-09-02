@@ -21,7 +21,7 @@
 
 apply plugin: 'signing'
 
-task gpgSign(type: Sign) {
+task gpg(type: Sign) {
     def dirToSign = new File(mainDirToSign, projectBuildNumberToSign)
     dirToSign = new File(dirToSign, "build")
     dirToSign = new File(dirToSign, projectArtifactsToSign)
@@ -33,9 +33,12 @@ task gpgSign(type: Sign) {
     logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
 
     fileTree(dir: dirToSign).files.each {
-        f -> println f
-//        f -> sign f
-//            logger.info("[gpgSign] File $f added for gpg signing")
+        f -> sign f
+            logger.info("[gpgSign] File $f added for gpg signing")
     }
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
+}
+
+task gpgSign {
+    dependsOn gpg
 }
