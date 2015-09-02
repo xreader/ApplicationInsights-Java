@@ -22,10 +22,11 @@
 apply plugin: 'signing'
 
 task gpgSign(type: Sign) {
-    def dir = new File("\\\\ai-javabuild-01", projectNameToSign)
+    def dir = new File("\\\\si-storage\\build\\MASI\\Java-SDK   ", projectNameToSign)
     dir = new File(dir, projectBuildToSign)
     dir = new File(dir, "build")
     dir = new File(dir, projectArtifactsToSign)
+    dir = new File(dir, "unsigned")
 
     println dir
     println dir
