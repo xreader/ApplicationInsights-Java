@@ -29,11 +29,11 @@ task copyTask(type: Copy) {
 task gpg(type: Sign) {
     def sourceDir = new File(mainDir, projectBuildNumber)
     sourceDir = new File(sourceDir, "build")
-    sourceDir = new File(sourceDir, projectArtifactsType)
+    sourceDir = new File(sourceDir, "maven")
 
     def outputDir = new File(sourceDir, "signed-gpg");
 
-    sourceDir = new File(sourceDir, preSignedRootDir)
+    sourceDir = new File(sourceDir, "signed")
 
     assert sourceDir != null
     assert sourceDir.exists()
