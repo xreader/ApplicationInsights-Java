@@ -24,7 +24,7 @@ apply plugin: 'signing'
 task gpgSign(type: Sign) {
 
     def names = []
-    fileTree(project).visit {
+    fileTree(project.name).visit {
         FileVisitDetails details->
             names << details.file.path
     }
