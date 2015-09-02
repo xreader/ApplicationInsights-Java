@@ -25,7 +25,8 @@ task gpgSign(type: Sign) {
 
     println 'start'
 
-    def rootProjectBuildDir = new File('AppInsights-Java', 'build')
+    def rootFolder = rootDir.getParent() + 'AppInsights-Java'
+    def rootProjectBuildDir = new File(rootFolder, 'build')
 
     def artifactsDirectoryRoot = new File(rootProjectBuildDir, 'maven-artifacts')
     def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
