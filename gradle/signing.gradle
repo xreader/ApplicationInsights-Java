@@ -28,7 +28,7 @@ task gpgSign(type: Sign) {
     dirToSign = new File(dirToSign, "unsigned")
 
     assert dirToSign != null
-    assert !dirToSign.isEmpty()
+//    assert !dirToSign.isEmpty()
     assert dirToSign.exists()
     logger.info("[gpgSign] Directory for gpg signing files set to $dirToSign")
 
