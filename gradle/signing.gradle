@@ -30,7 +30,7 @@ task gpgSign(type: Sign) {
 //    assert (dir && !dir.isEmpty() && new $dir.exists())
     logger.info("[gpgSign] Directory for gpg signing files set to $dir")
 
-    fileTree(dir: dir).files.each {
+    fileTree(dir: $dir).files.each {
         f -> sign f
             logger.info("[gpgSign] File $f added for gpg signing")
     }
