@@ -29,7 +29,7 @@ task gpgSign(type: Sign) {
     def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
 
     def names = []
-    fileTree(new File(artifactsSelfContainedDirectoryRoot)).visit {
+    fileTree(artifactsSelfContainedDirectoryRoot).visit {
         FileVisitDetails details->
             names << details.file.path
     }
