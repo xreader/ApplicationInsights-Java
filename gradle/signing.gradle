@@ -23,7 +23,7 @@ apply plugin: 'signing'
 
 task gpgSign(type: Sign) {
     def dir = new File("\\\\ai-javabuild-01", projectNameToSign)
-    dir = new File(dir, "projectBuildToSign")
+    dir = new File(dir, projectBuildToSign)
     dir = new File(dir, "build")
     dir = new File(dir, projectArtifactsToSign)
 
