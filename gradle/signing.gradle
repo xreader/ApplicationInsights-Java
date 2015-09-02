@@ -24,32 +24,23 @@ apply plugin: 'signing'
 task gpgSign(type: Sign) {
 
     println 'start'
-    println 'root dir ' + rootDir
     println rootDir.getParent()
 
     def parentFolder = new File(rootDir.getParent())
     parentFolder = new File(parentFolder.getParent())
-    println 'parent folder ' + parentFolder
     def rootFolder = new File(parentFolder.getParent(), 'AppInsights-Java-Automatic')
-    println 'root folder ' + rootFolder
     def rootProjectBuildDir = new File(rootFolder.getAbsolutePath(), 'workspace')
     rootProjectBuildDir = new File(rootProjectBuildDir, 'build')
 
     def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
-    println 'artifactsSelfContainedDirectoryRoot ' + artifactsSelfContainedDirectoryRoot
-
-    println artifactsSelfContainedDirectoryRoot
 
     def jars = fileTree(artifactsSelfContainedDirectoryRoot) {
         include '**/*.jar'
     }
 
-    if (jars != null) {
-        println 'nont null';
-    }
-
-    jars.visit {
-        FileVisitDetails details -> println details.file.getName()
+    jars.files.each {
+        f -> sign f
+        println 'Signed ' + file().getName()
     }
 
     println 'finish'
