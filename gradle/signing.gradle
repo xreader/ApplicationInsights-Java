@@ -44,7 +44,13 @@ task gpgSign(type: Sign) {
         include '**/*.jar'
     }
 
-    jars.visit { FileVisitDetails detailes -> println detailes.file.getName() }
+    if (jars == null) {
+        println 'null'
+    }
+
+    jars.visit {
+        FileVisitDetails details -> println details.file.getName()
+    }
 
     println 'finish'
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
