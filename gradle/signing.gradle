@@ -27,7 +27,7 @@ task gpgSign(type: Sign) {
     dir = new File(dir, "build")
     dir = new File(dir, projectArtifactsToSign)
 
-    assert (dir && !dir.isEmpty() && new File(dir).exists())
+//    assert (dir && !dir.isEmpty() && new $dir.exists())
     logger.info("[gpgSign] Directory for gpg signing files set to $dir")
 
     fileTree(dir: dir).files.each {
