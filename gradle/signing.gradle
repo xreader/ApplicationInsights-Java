@@ -39,9 +39,12 @@ task gpgSign(type: Sign) {
     println 'artifactsSelfContainedDirectoryRoot ' + artifactsSelfContainedDirectoryRoot
 
     println artifactsSelfContainedDirectoryRoot
-    artifactsSelfContainedDirectoryRoot.eachFile() { file->
-        println file.getName()
+
+    def jars = fileTree(dir: artifactsSelfContainedDirectoryRoot.getAbsolutePath()) {
+        include '**/*.jar'
     }
+
+    println jars.files
 
     println 'finish'
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
