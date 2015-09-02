@@ -40,7 +40,7 @@ task gpgSign(type: Sign) {
 
     jars.files.each {
         f -> sign f
-        println 'Signed ' + $f.getName()
+//        println 'Signed ' + $f.getName()
     }
 
     println 'finish'
