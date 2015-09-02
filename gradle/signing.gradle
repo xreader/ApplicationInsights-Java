@@ -38,12 +38,15 @@ task gpgSign(type: Sign) {
     def artifactsSelfContainedDirectoryRoot = new File(rootProjectBuildDir, 'self-contained-artifacts')
 
     println artifactsSelfContainedDirectoryRoot
+    def list = []
 
-    def names = fileTree(artifactsSelfContainedDirectoryRoot).matching {
-        exclude "pom.xml"
+    def dir = new File(artifactsSelfContainedDirectoryRoot)
+    dir.eachFileRecurse (FileType.FILES) { file ->
+        list << file
     }
-
-    println names
+    list.each {
+        println it.path
+    }
 
     println 'finish'
 //    assert (dirToSign && !dirToSign.isEmpty() && new File(dirToSign).exists())
