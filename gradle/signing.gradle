@@ -26,7 +26,7 @@ task gpgSign(type: Sign) {
     println 'start'
     println rootDir.getParent()
 
-    def rootFolder = rootDir.getParent().getParent() + 'AppInsights-Java'
+    def rootFolder = new File(rootDir.getParent()).getParent() + 'AppInsights-Java'
     println rootFolder
     def rootProjectBuildDir = new File(rootFolder, 'build')
 
