@@ -177,7 +177,8 @@ def writePomToArtifactsDirectory(pomObject, directoryName) {
 }
 
 def getArtifactsDirectory(artifactId) {
-    File dir = new File($baseFolder, artifactId)
+    File mainDir = new File(artifactsDirectoryRoot, "unsigned")
+    File dir = new File(mainDir, artifactId)
     dir.mkdirs()
 
     return dir
