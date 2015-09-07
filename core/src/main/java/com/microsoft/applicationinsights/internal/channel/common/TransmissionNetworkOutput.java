@@ -32,21 +32,14 @@ import java.util.concurrent.TimeUnit;
 import com.microsoft.applicationinsights.internal.channel.TransmissionDispatcher;
 import com.microsoft.applicationinsights.internal.channel.TransmissionOutput;
 import com.microsoft.applicationinsights.internal.logger.InternalLogger;
-import com.microsoft.applicationinsights.internal.reflect.ClassDataUtils;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -62,7 +55,6 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
     private final static String CONTENT_TYPE_HEADER = "Content-Type";
     private final static String CONTENT_ENCODING_HEADER = "Content-Encoding";
     private final static String RESPONSE_THROTTLING_HEADER = "Retry-After";
-    private final static int DEFAULT_REQUEST_TIMEOUT_IN_MILLIS = 60000;
 
     private final static String DEFAULT_SERVER_URI = "https://dc.services.visualstudio.com/v2/track";
 
@@ -137,6 +129,7 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
             HttpPost request = null;
             try {
                 request = createTransmissionPostRequest(transmission);
+                httpClient.enhanceRequest(request);
 
                 response = httpClient.sendPostRequest(request);
 
@@ -187,6 +180,40 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
         Header retryAfterHeader = response.getFirstHeader(RESPONSE_THROTTLING_HEADER);
         if (retryAfterHeader == null) {
             return;
+/* =======
+    private TransmissionSendResult doSend(Transmission transmission) {
+        HttpResponse response = null;
+        HttpPost request = null;
+        try {
+            request = createTransmissionPostRequest(transmission);
+            httpClient.enhanceRequest(request);
+
+            response = httpClient.sendPostRequest(request);
+
+            HttpEntity respEntity = response.getEntity();
+            int code = response.getStatusLine().getStatusCode();
+
+            return translateResponse(code, respEntity);
+        } catch (ConnectionPoolTimeoutException e) {
+            InternalLogger.INSTANCE.error("Failed to send, connection pool timeout exception");
+            return TransmissionSendResult.FAILED_TO_SEND_DUE_TO_CONNECTION_POOL;
+        } catch (SocketException e) {
+            InternalLogger.INSTANCE.error("Failed to send, socket timeout exception");
+            return TransmissionSendResult.FAILED_TO_RECEIVE_DUE_TO_TIMEOUT;
+        } catch (UnknownHostException e) {
+            InternalLogger.INSTANCE.error("Failed to send, wrong host address or cannot reach address due to network issues, exception: %s", e.getMessage());
+            return TransmissionSendResult.FAILED_TO_SEND_DUE_TO_NETWORK_ISSUES;
+        } catch (IOException ioe) {
+            InternalLogger.INSTANCE.error("Failed to send, exception: %s", ioe.getMessage());
+            return TransmissionSendResult.FAILED_TO_READ_RESPONSE;
+        } catch (Exception e) {
+            InternalLogger.INSTANCE.error("Failed to send, unexpected exception: %s", e.getMessage());
+            return TransmissionSendResult.UNKNOWN_ERROR;
+        } catch (Throwable t) {
+            InternalLogger.INSTANCE.error("Failed to send, unexpected error: %s", t.getMessage());
+            return TransmissionSendResult.UNKNOWN_ERROR;
+>>>>>>> master
+*/
         }
 
         String retryAfterAsString = retryAfterHeader.getValue();
@@ -296,14 +323,6 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
 
         ByteArrayEntity bae = new ByteArrayEntity(transmission.getContent());
         request.setEntity(bae);
-
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS)
-                .setSocketTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS)
-                .setConnectTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS)
-                .setSocketTimeout(DEFAULT_REQUEST_TIMEOUT_IN_MILLIS).build();
-
-        request.setConfig(requestConfig);
 
         return request;
     }

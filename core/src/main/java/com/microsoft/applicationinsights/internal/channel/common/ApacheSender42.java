@@ -23,25 +23,40 @@ package com.microsoft.applicationinsights.internal.channel.common;
 
 import java.io.IOException;
 
+import com.microsoft.applicationinsights.internal.logger.InternalLogger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * Created by gupele on 6/4/2015.
  */
 final class ApacheSender42 implements ApacheSender {
+
     private HttpClient httpClient;
 
     public ApacheSender42() {
-        httpClient = new DefaultHttpClient();
+        PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
+        cm.setMaxTotal(DEFAULT_MAX_TOTAL_CONNECTIONS);
+        cm.setDefaultMaxPerRoute(DEFAULT_MAX_CONNECTIONS_PER_ROUTE);
+
+        httpClient = new DefaultHttpClient(cm);
+
+        HttpParams params = httpClient.getParams();
+        HttpConnectionParams.setConnectionTimeout(params, REQUEST_TIMEOUT_IN_MILLIS);
+        HttpConnectionParams.setSoTimeout(params, REQUEST_TIMEOUT_IN_MILLIS);
+
+        InternalLogger.INSTANCE.info("Using Apache HttpClient 4.2");
     }
 
     @Override
     public HttpResponse sendPostRequest(HttpPost post) throws IOException {
-        httpClient.execute(post);
-        return null;
+        HttpResponse response = httpClient.execute(post);
+        return response;
     }
 
     @Override
@@ -56,4 +71,9 @@ final class ApacheSender42 implements ApacheSender {
     public HttpClient getHttpClient() {
         return httpClient;
     }
+
+    @Override
+    public void enhanceRequest(HttpPost request) {
+    }
 }
+
