@@ -121,7 +121,6 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
     public boolean send(Transmission transmission) {
         while (!stopped) {
             if (transmissionPolicyManager.getTransmissionPolicyState().getCurrentState() != TransmissionPolicy.UNBLOCKED) {
-                System.out.println("blocked");
                 return false;
             }
 
@@ -167,9 +166,7 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
                 if (request != null) {
                     request.releaseConnection();
                 }
-                if (response != null) {
-                    httpClient.dispose(response);
-                }
+                httpClient.dispose(response);
             }
         }
 
@@ -180,44 +177,9 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
         Header retryAfterHeader = response.getFirstHeader(RESPONSE_THROTTLING_HEADER);
         if (retryAfterHeader == null) {
             return;
-/* =======
-    private TransmissionSendResult doSend(Transmission transmission) {
-        HttpResponse response = null;
-        HttpPost request = null;
-        try {
-            request = createTransmissionPostRequest(transmission);
-            httpClient.enhanceRequest(request);
-
-            response = httpClient.sendPostRequest(request);
-
-            HttpEntity respEntity = response.getEntity();
-            int code = response.getStatusLine().getStatusCode();
-
-            return translateResponse(code, respEntity);
-        } catch (ConnectionPoolTimeoutException e) {
-            InternalLogger.INSTANCE.error("Failed to send, connection pool timeout exception");
-            return TransmissionSendResult.FAILED_TO_SEND_DUE_TO_CONNECTION_POOL;
-        } catch (SocketException e) {
-            InternalLogger.INSTANCE.error("Failed to send, socket timeout exception");
-            return TransmissionSendResult.FAILED_TO_RECEIVE_DUE_TO_TIMEOUT;
-        } catch (UnknownHostException e) {
-            InternalLogger.INSTANCE.error("Failed to send, wrong host address or cannot reach address due to network issues, exception: %s", e.getMessage());
-            return TransmissionSendResult.FAILED_TO_SEND_DUE_TO_NETWORK_ISSUES;
-        } catch (IOException ioe) {
-            InternalLogger.INSTANCE.error("Failed to send, exception: %s", ioe.getMessage());
-            return TransmissionSendResult.FAILED_TO_READ_RESPONSE;
-        } catch (Exception e) {
-            InternalLogger.INSTANCE.error("Failed to send, unexpected exception: %s", e.getMessage());
-            return TransmissionSendResult.UNKNOWN_ERROR;
-        } catch (Throwable t) {
-            InternalLogger.INSTANCE.error("Failed to send, unexpected error: %s", t.getMessage());
-            return TransmissionSendResult.UNKNOWN_ERROR;
->>>>>>> master
-*/
         }
 
         String retryAfterAsString = retryAfterHeader.getValue();
-        System.out.println("suspend for " + retryAfterAsString);
         if (Strings.isNullOrEmpty(retryAfterAsString)) {
             return;
         }
@@ -251,19 +213,16 @@ public final class TransmissionNetworkOutput implements TransmissionOutput {
                     break;
 
                 case 429:
-                    System.out.println("429");
                     result = TransmissionSendResult.THROTTLED;
                     errorMessage = "Throttling (All messages of the transmission were rejected) ";
                     break;
 
                 case 439:
-                    System.out.println("439");
                     result = TransmissionSendResult.THROTTLED_OVER_EXTENDED_TIME;
                     errorMessage = "Throttling extended";
                     break;
 
                 case 402:
-                    System.out.println("402");
                     result = TransmissionSendResult.PAYMENT_REQUIRED;
                     errorMessage = "Throttling: payment required";
                     break;
